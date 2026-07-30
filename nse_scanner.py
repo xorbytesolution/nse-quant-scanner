@@ -1,15 +1,17 @@
 """
 ==============================================================================
-NSE STOCK QUANT SCANNER & EASY UI DASHBOARD
+NSE STOCK QUANT SCANNER & EASY UI DASHBOARD WITH SCAN HISTORY
 ==============================================================================
 Author: Senior Quant Developer & Stock Market Algorithm Engineer
 Language: Python 3.12+
-Dependencies: yfinance, pandas, numpy, tabulate, streamlit, plotly
+Dependencies: yfinance, pandas, numpy, tabulate, streamlit, plotly, sqlite3
 """
 
 import concurrent.futures
 import datetime
+import json
 import os
+import sqlite3
 import sys
 import time
 import urllib.request
@@ -39,6 +41,100 @@ try:
     HAS_STREAMLIT = True
 except ImportError:
     HAS_STREAMLIT = False
+
+HISTORY_DB = "scan_history.db"
+
+# ==============================================================================
+# 0. SCAN HISTORY DATABASE ENGINE (SQLite)
+# ==============================================================================
+
+def init_history_db():
+    """Initializes SQLite table for storing scan history if not exists."""
+    try:
+        conn = sqlite3.connect(HISTORY_DB)
+        c = conn.cursor()
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS scan_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp TEXT,
+                preset_mode TEXT,
+                universe TEXT,
+                total_matches INTEGER,
+                scan_duration REAL,
+                results_json TEXT
+            )
+        ''')
+        conn.commit()
+        conn.close()
+    except Exception:
+        pass
+
+
+def save_to_history(preset_mode: str, universe: str, total_matches: int, duration: float, df: pd.DataFrame):
+    """Saves a completed scan run into the SQLite history database."""
+    try:
+        init_history_db()
+        conn = sqlite3.connect(HISTORY_DB)
+        c = conn.cursor()
+        now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        results_json = df.to_json(orient="records") if not df.empty else "[]"
+        c.execute('''
+            INSERT INTO scan_logs (timestamp, preset_mode, universe, total_matches, scan_duration, results_json)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (now_str, preset_mode, universe, total_matches, duration, results_json))
+        conn.commit()
+        conn.close()
+    except Exception:
+        pass
+
+
+def load_history_summary() -> pd.DataFrame:
+    """Loads list of all past scans from the history database."""
+    try:
+        init_history_db()
+        conn = sqlite3.connect(HISTORY_DB)
+        df_hist = pd.read_sql_query(
+            "SELECT id AS 'Scan ID', timestamp AS 'Scan Time', preset_mode AS 'Strategy Preset', universe AS 'Stock Universe', total_matches AS 'Matches Found', scan_duration AS 'Duration (s)' FROM scan_logs ORDER BY id DESC", 
+            conn
+        )
+        conn.close()
+        return df_hist
+    except Exception:
+        return pd.DataFrame()
+
+
+def load_history_detail(scan_id: int) -> dict | None:
+    """Retrieves full stock result table for a specific past scan ID."""
+    try:
+        conn = sqlite3.connect(HISTORY_DB)
+        c = conn.cursor()
+        c.execute("SELECT timestamp, preset_mode, universe, results_json FROM scan_logs WHERE id = ?", (scan_id,))
+        row = c.fetchone()
+        conn.close()
+        if row:
+            timestamp, preset_mode, universe, results_json = row
+            df = pd.read_json(results_json) if results_json else pd.DataFrame()
+            return {
+                'timestamp': timestamp,
+                'preset_mode': preset_mode,
+                'universe': universe,
+                'df': df
+            }
+    except Exception:
+        pass
+    return None
+
+
+def clear_history_db():
+    """Clears all saved scan history."""
+    try:
+        conn = sqlite3.connect(HISTORY_DB)
+        c = conn.cursor()
+        c.execute("DELETE FROM scan_logs")
+        conn.commit()
+        conn.close()
+    except Exception:
+        pass
 
 
 # ==============================================================================
@@ -384,13 +480,13 @@ def run_full_scan(
 
 
 # ==============================================================================
-# 4. STREAMLIT EASY & POWERFUL UI DASHBOARD
+# 4. STREAMLIT EASY & POWERFUL UI DASHBOARD WITH SCAN HISTORY
 # ==============================================================================
 
 def launch_streamlit_dashboard():
     """Launches easy-to-understand interactive quant web app."""
     st.set_page_config(
-        page_title="NSE Quant Stock Scanner", 
+        page_title="NSE Quant Stock Scanner Pro", 
         page_icon="🟢", 
         layout="wide"
     )
@@ -418,145 +514,199 @@ def launch_streamlit_dashboard():
         </style>
     """, unsafe_allow_html=True)
 
-    st.title("🟢 NSE Stock Algorithmic Breakout Scanner")
-    st.caption("Yeh Tool NSE Stocks Me Momentum, Bullish Trend Aur Breakouts Auto-Detect Karta Hai")
+    st.title("🟢 NSE Stock Algorithmic Quant Scanner & History Portal")
 
-    # Simple Guide Box
-    st.markdown("""
-        <div class="info-box">
-            <b>💡 Yeh Scanner Kya Karta Hai? (Simple Language)</b><br>
-            • <b>Green Candle & Uptrend</b>: Aaj green candle banee wale stocks dhundta hai.<br>
-            • <b>Moving Average Trend (SMA 20 > 40 > 60)</b>: Short, Medium & Long term uptrend confirm karta hai.<br>
-            • <b>Ichimoku & Parabolic SAR</b>: Technical indicator buy signals verify karta hai.<br>
-            • <b>Auto Sort</b>: Sabse zyada Volume aur Buyers wale stocks sabse upar dikhata hai.
-        </div>
-    """, unsafe_allow_html=True)
+    # Main Tabs: Live Scanner & Scan History
+    tab_live, tab_history = st.tabs(["🚀 Live Market Scanner", "📜 Scan History & Past Reports"])
 
-    st.sidebar.header("🎯 Step 1: Mode Select Karein")
-    preset = st.sidebar.radio(
-        "Scanner Strategy Preset:",
-        [
-            "Super Bullish Breakout (Recommended)",
-            "Trend Following Breakout",
-            "Ultra High Momentum (All 17 Rules)"
-        ],
-        help="Select Super Bullish Breakout to get top trending stocks today!"
-    )
+    # --------------------------------------------------------------------------
+    # TAB 1: LIVE MARKET SCANNER
+    # --------------------------------------------------------------------------
+    with tab_live:
+        st.markdown("""
+            <div class="info-box">
+                <b>💡 Live Stock Scanner Overview</b><br>
+                • <b>Green Candle & Breakout</b>: Identifies stocks with strong daily/weekly momentum.<br>
+                • <b>Moving Average Trend (SMA 20 > 40 > 60)</b>: Confirms short, medium & long term uptrend.<br>
+                • <b>Ichimoku & Parabolic SAR</b>: Verifies indicator buy signals.<br>
+                • <b>Auto History Save</b>: Every scan is automatically logged in the History database for viewing anytime!
+            </div>
+        """, unsafe_allow_html=True)
 
-    st.sidebar.header("⚙️ Step 2: Stock Universe")
-    universe = st.sidebar.selectbox("Stocks Group", ["Top 300 Liquid Stocks", "All NSE Equities", "Nifty Benchmark 100"])
-    limit = None if universe == "All NSE Equities" else (100 if universe == "Nifty Benchmark 100" else 300)
-
-    workers = st.sidebar.slider("Parallel Download Speed", 10, 40, 25)
-
-    if st.button("🚀 Start Live Stock Scan Now", type="primary"):
-        start_time = time.time()
-        progress_bar = st.progress(0.0)
-        status_text = st.empty()
-
-        def ui_callback(done, total):
-            ratio = done / total
-            progress_bar.progress(ratio)
-            status_text.text(f"⚡ Downloading & Scanning {done}/{total} NSE stocks ({(ratio * 100):.1f}%)...")
-
-        df_res, stock_dfs = run_full_scan(
-            max_workers=workers, 
-            max_stocks=limit, 
-            callback=ui_callback, 
-            preset_mode=preset
+        st.sidebar.header("🎯 Step 1: Mode Select")
+        preset = st.sidebar.radio(
+            "Scanner Strategy Preset:",
+            [
+                "Super Bullish Breakout (Recommended)",
+                "Trend Following Breakout",
+                "Ultra High Momentum (All 17 Rules)"
+            ],
+            help="Select Super Bullish Breakout to get top trending stocks today!"
         )
-        
-        elapsed = round(time.time() - start_time, 2)
-        status_text.success(f"✅ Scan Complete in {elapsed} Seconds!")
-        
-        st.session_state['df_res'] = df_res
-        st.session_state['stock_dfs'] = stock_dfs
-        st.session_state['elapsed'] = elapsed
 
-        df_res.to_csv("scanner_results.csv", index=False)
+        st.sidebar.header("⚙️ Step 2: Stock Universe")
+        universe = st.sidebar.selectbox("Stocks Group", ["Top 300 Liquid Stocks", "All NSE Equities", "Nifty Benchmark 100"])
+        limit = None if universe == "All NSE Equities" else (100 if universe == "Nifty Benchmark 100" else 300)
 
-    if 'df_res' in st.session_state:
-        df_res = st.session_state['df_res']
-        stock_dfs = st.session_state['stock_dfs']
-        elapsed = st.session_state['elapsed']
+        workers = st.sidebar.slider("Parallel Download Speed", 10, 40, 25)
 
-        st.markdown("<br>", unsafe_allow_html=True)
-        c1, c2, c3, c4 = st.columns(4)
-        
-        c1.markdown(f"""
-            <div class="metric-card">
-                <div class="metric-value">{len(df_res)}</div>
-                <div class="metric-label">Matching Stocks</div>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        c2.markdown(f"""
-            <div class="metric-card">
-                <div class="metric-value">{df_res.iloc[0]['Symbol'] if not df_res.empty else 'N/A'}</div>
-                <div class="metric-label">Top Traded Stock</div>
-            </div>
-        """, unsafe_allow_html=True)
+        if st.button("🚀 Start Live Stock Scan Now", type="primary", use_container_width=True):
+            start_time = time.time()
+            progress_bar = st.progress(0.0)
+            status_text = st.empty()
 
-        c3.markdown(f"""
-            <div class="metric-card">
-                <div class="metric-value">{elapsed}s</div>
-                <div class="metric-label">Scan Speed</div>
-            </div>
-        """, unsafe_allow_html=True)
+            def ui_callback(done, total):
+                ratio = done / total
+                progress_bar.progress(ratio)
+                status_text.text(f"⚡ Downloading & Scanning {done}/{total} NSE stocks ({(ratio * 100):.1f}%)...")
 
-        c4.markdown(f"""
-            <div class="metric-card">
-                <div class="metric-value">Saved</div>
-                <div class="metric-label">scanner_results.csv</div>
-            </div>
-        """, unsafe_allow_html=True)
-
-        st.markdown("<br>", unsafe_allow_html=True)
-
-        if not df_res.empty:
-            st.subheader(f"📊 Matching Stocks List ({len(df_res)} Stocks Found - Sorted by Highest Volume)")
-            st.dataframe(df_res, hide_index=True)
-
-            st.download_button(
-                label="📥 Download Results CSV File (scanner_results.csv)",
-                data=df_res.to_csv(index=False).encode('utf-8'),
-                file_name="scanner_results.csv",
-                mime="text/csv"
+            df_res, stock_dfs = run_full_scan(
+                max_workers=workers, 
+                max_stocks=limit, 
+                callback=ui_callback, 
+                preset_mode=preset
+            )
+            
+            elapsed = round(time.time() - start_time, 2)
+            status_text.success(f"✅ Scan Complete in {elapsed} Seconds!")
+            
+            # Save to SQLite History Database
+            save_to_history(
+                preset_mode=preset,
+                universe=universe,
+                total_matches=len(df_res),
+                duration=elapsed,
+                df=df_res
             )
 
-            # Candlestick Chart Viewer
-            st.markdown("---")
-            st.subheader("📈 Interactive Stock Price & Indicator Chart")
-            selected_symbol = st.selectbox("Select Stock Symbol to View Chart:", df_res['Symbol'].tolist())
-            
-            if selected_symbol in stock_dfs:
-                chart_df = stock_dfs[selected_symbol].tail(90)
-                
-                fig = go.Figure()
-                fig.add_trace(go.Candlestick(
-                    x=chart_df.index,
-                    open=chart_df['Open'],
-                    high=chart_df['High'],
-                    low=chart_df['Low'],
-                    close=chart_df['Close'],
-                    name='Candles'
-                ))
-                fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA20'], mode='lines', name='SMA 20 (Green)', line=dict(color='#00e676', width=1.5)))
-                fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA40'], mode='lines', name='SMA 40 (Orange)', line=dict(color='#ff9100', width=1.5)))
-                fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA60'], mode='lines', name='SMA 60 (Blue)', line=dict(color='#29b6f6', width=1.5)))
-                fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SpanB'], mode='lines', name='Ichimoku Span B', line=dict(color='#e91e63', width=2)))
-                fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['PSAR'], mode='markers', name='Parabolic SAR', marker=dict(size=4, color='#ab47bc')))
+            st.session_state['df_res'] = df_res
+            st.session_state['stock_dfs'] = stock_dfs
+            st.session_state['elapsed'] = elapsed
 
-                fig.update_layout(
-                    title=f"{selected_symbol} Daily Price Chart & Moving Averages",
-                    template="plotly_dark",
-                    xaxis_rangeslider_visible=False,
-                    height=500,
-                    margin=dict(l=20, r=20, t=40, b=20)
+            df_res.to_csv("scanner_results.csv", index=False)
+
+        if 'df_res' in st.session_state:
+            df_res = st.session_state['df_res']
+            stock_dfs = st.session_state['stock_dfs']
+            elapsed = st.session_state['elapsed']
+
+            st.markdown("<br>", unsafe_allow_html=True)
+            c1, c2, c3, c4 = st.columns(4)
+            
+            c1.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-value">{len(df_res)}</div>
+                    <div class="metric-label">Matching Stocks</div>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            c2.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-value">{df_res.iloc[0]['Symbol'] if not df_res.empty else 'N/A'}</div>
+                    <div class="metric-label">Top Traded Stock</div>
+                </div>
+            """, unsafe_allow_html=True)
+
+            c3.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-value">{elapsed}s</div>
+                    <div class="metric-label">Scan Speed</div>
+                </div>
+            """, unsafe_allow_html=True)
+
+            c4.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-value">Saved ✅</div>
+                    <div class="metric-label">Saved to History DB</div>
+                </div>
+            """, unsafe_allow_html=True)
+
+            st.markdown("<br>", unsafe_allow_html=True)
+
+            if not df_res.empty:
+                st.subheader(f"📊 Matching Stocks List ({len(df_res)} Stocks Found - Sorted by Highest Volume)")
+                st.dataframe(df_res, hide_index=True, use_container_width=True)
+
+                st.download_button(
+                    label="📥 Download Results CSV File (scanner_results.csv)",
+                    data=df_res.to_csv(index=False).encode('utf-8'),
+                    file_name="scanner_results.csv",
+                    mime="text/csv"
                 )
-                st.plotly_chart(fig)
+
+                # Candlestick Chart Viewer
+                st.markdown("---")
+                st.subheader("📈 Interactive Stock Price & Indicator Chart")
+                selected_symbol = st.selectbox("Select Stock Symbol to View Chart:", df_res['Symbol'].tolist())
+                
+                if selected_symbol in stock_dfs:
+                    chart_df = stock_dfs[selected_symbol].tail(90)
+                    
+                    fig = go.Figure()
+                    fig.add_trace(go.Candlestick(
+                        x=chart_df.index,
+                        open=chart_df['Open'],
+                        high=chart_df['High'],
+                        low=chart_df['Low'],
+                        close=chart_df['Close'],
+                        name='Candles'
+                    ))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA20'], mode='lines', name='SMA 20 (Green)', line=dict(color='#00e676', width=1.5)))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA40'], mode='lines', name='SMA 40 (Orange)', line=dict(color='#ff9100', width=1.5)))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA60'], mode='lines', name='SMA 60 (Blue)', line=dict(color='#29b6f6', width=1.5)))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SpanB'], mode='lines', name='Ichimoku Span B', line=dict(color='#e91e63', width=2)))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['PSAR'], mode='markers', name='Parabolic SAR', marker=dict(size=4, color='#ab47bc')))
+
+                    fig.update_layout(
+                        title=f"{selected_symbol} Daily Price Chart & Moving Averages",
+                        template="plotly_dark",
+                        xaxis_rangeslider_visible=False,
+                        height=500,
+                        margin=dict(l=20, r=20, t=40, b=20)
+                    )
+                    st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.warning("⚠️ No stocks matched in this strict preset mode today. Try switching Sidebar Strategy to 'Super Bullish Breakout (Recommended)'!")
+
+    # --------------------------------------------------------------------------
+    # TAB 2: SCAN HISTORY & PAST REPORTS
+    # --------------------------------------------------------------------------
+    with tab_history:
+        st.subheader("📜 Scan History Log Database")
+        st.caption("All previous market scans are automatically saved here with timestamps and full stock lists.")
+
+        df_summary = load_history_summary()
+
+        if not df_summary.empty:
+            col_left, col_right = st.columns([3, 1])
+            with col_left:
+                st.dataframe(df_summary, hide_index=True, use_container_width=True)
+            with col_right:
+                if st.button("🗑️ Clear History Logs"):
+                    clear_history_db()
+                    st.rerun()
+
+            st.markdown("---")
+            st.subheader("🔍 View Past Scan Detailed Results")
+            scan_options = {f"Scan #{row['Scan ID']} - {row['Scan Time']} ({row['Strategy Preset']} | {row['Matches Found']} matches)": row['Scan ID'] for _, row in df_summary.iterrows()}
+            selected_scan_label = st.selectbox("Select Past Scan to Inspect:", list(scan_options.keys()))
+            selected_scan_id = scan_options[selected_scan_label]
+
+            detail = load_history_detail(selected_scan_id)
+            if detail and detail['df'] is not None and not detail['df'].empty:
+                st.markdown(f"**Scan Date/Time**: `{detail['timestamp']}` | **Strategy**: `{detail['preset_mode']}` | **Universe**: `{detail['universe']}`")
+                st.dataframe(detail['df'], hide_index=True, use_container_width=True)
+
+                st.download_button(
+                    label=f"📥 Download Scan #{selected_scan_id} CSV",
+                    data=detail['df'].to_csv(index=False).encode('utf-8'),
+                    file_name=f"scan_history_{selected_scan_id}.csv",
+                    mime="text/csv"
+                )
+            else:
+                st.info("No matching stocks found in this past scan run.")
         else:
-            st.warning("⚠️ No stocks matched in this strict preset mode today. Try switching Sidebar Strategy to 'Super Bullish Breakout (Recommended)'!")
+            st.info("ℹ️ No scan history logged yet. Run a live scan in Tab 1 to start logging history!")
 
 
 # Automatic Streamlit execution check when loaded via streamlit command
@@ -592,13 +742,24 @@ def main():
         bar_str = "#" * bars + "-" * (50 - bars)
         print(f"\r[{bar_str}] {done}/{total} ({pct:.1f}%)", end="", flush=True)
 
+    start_t = time.time()
     df_results, _ = run_full_scan(
         max_workers=25, 
         max_stocks=None, 
         callback=progress, 
         preset_mode="Super Bullish Breakout (Recommended)"
     )
+    elapsed_t = round(time.time() - start_t, 2)
     print("\n\nScan Completed Successfully!\n")
+
+    # Save to SQLite History Database
+    save_to_history(
+        preset_mode="Super Bullish Breakout (Recommended)",
+        universe="All NSE Equities",
+        total_matches=len(df_results),
+        duration=elapsed_t,
+        df=df_results
+    )
 
     output_csv = "scanner_results.csv"
     df_results.to_csv(output_csv, index=False)
