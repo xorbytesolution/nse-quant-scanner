@@ -546,49 +546,119 @@ def run_full_scan(
 
 
 # ==============================================================================
-# 4. STREAMLIT EASY & POWERFUL UI DASHBOARD WITH MODAL FILTER POPUP & SCAN HISTORY
+# 4. STREAMLIT EASY & POWERFUL UI DASHBOARD WITH LIGHT THEME & MODAL POPUP
 # ==============================================================================
 
 def launch_streamlit_dashboard():
-    """Launches easy-to-understand interactive quant web app."""
+    """Launches high-end interactive quant web application in clean Light Theme."""
     st.set_page_config(
         page_title="NSE Quant Stock Scanner Pro", 
-        page_icon="🟢", 
-        layout="wide"
+        page_icon="📈", 
+        layout="wide",
+        initial_sidebar_state="expanded"
     )
 
+    # Ultra-Clean Financial Dashboard Light Mode Theme CSS
     st.markdown("""
         <style>
-            .stApp { background-color: #0b0e14; color: #e1e6ed; }
-            .stSidebar { background-color: #121721 !important; border-right: 1px solid #1e2634; }
+            /* Main Background & Typography */
+            .stApp {
+                background-color: #f8fafc;
+                color: #0f172a;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            }
+            .stSidebar {
+                background-color: #f1f5f9 !important;
+                border-right: 1px solid #e2e8f0;
+            }
+
+            /* Main Header & Title */
+            h1 {
+                color: #0f172a !important;
+                font-weight: 800 !important;
+                letter-spacing: -0.5px;
+            }
+            h2, h3, h4, h5 {
+                color: #1e293b !important;
+                font-weight: 700 !important;
+            }
+
+            /* Info Box */
             .info-box {
-                background-color: #161c28;
-                border-left: 4px solid #00e676;
+                background-color: #eff6ff;
+                border: 1px solid #bfdbfe;
+                border-left: 4px solid #2563eb;
                 padding: 16px;
-                border-radius: 8px;
-                margin-bottom: 20px;
-            }
-            .metric-card {
-                background: linear-gradient(135deg, #161c28 0%, #1c2434 100%);
-                border: 1px solid #283448;
-                border-radius: 12px;
-                padding: 18px;
-                text-align: center;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            }
-            .metric-value { font-size: 26px; font-weight: 800; color: #00ff88; }
-            .metric-label { font-size: 12px; color: #8b9bb4; text-transform: uppercase; letter-spacing: 0.5px; }
-            .filter-card {
-                background-color: #161c28;
-                border: 1px solid #283448;
                 border-radius: 10px;
-                padding: 15px;
-                margin-bottom: 20px;
+                color: #1e3a8a;
+                margin-bottom: 24px;
+                box-shadow: 0 2px 8px rgba(37, 99, 235, 0.05);
+            }
+
+            /* Metric Cards */
+            .metric-card {
+                background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+                border: 1px solid #e2e8f0;
+                border-radius: 12px;
+                padding: 20px;
+                text-align: center;
+                box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+                transition: all 0.2s ease;
+            }
+            .metric-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(37, 99, 235, 0.1);
+                border-color: #cbd5e1;
+            }
+            .metric-value {
+                font-size: 28px;
+                font-weight: 800;
+                color: #2563eb;
+            }
+            .metric-label {
+                font-size: 12px;
+                font-weight: 700;
+                color: #64748b;
+                text-transform: uppercase;
+                letter-spacing: 0.8px;
+                margin-top: 4px;
+            }
+
+            /* Buttons */
+            .stButton>button {
+                background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+                color: #ffffff !important;
+                font-weight: 700 !important;
+                border: none !important;
+                border-radius: 8px !important;
+                padding: 12px 28px !important;
+                font-size: 15px !important;
+                box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
+                transition: all 0.2s ease !important;
+            }
+            .stButton>button:hover {
+                background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+                box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35) !important;
+                transform: translateY(-1px);
+            }
+
+            /* Data Tables & Inputs */
+            .stDataFrame {
+                border: 1px solid #e2e8f0;
+                border-radius: 10px;
+                background-color: #ffffff;
+            }
+            .stTextInput>div>div>input, .stSelectbox>div>div>div, .stDateInput>div>div>input {
+                background-color: #ffffff !important;
+                color: #0f172a !important;
+                border: 1px solid #cbd5e1 !important;
+                border-radius: 8px !important;
             }
         </style>
     """, unsafe_allow_html=True)
 
-    st.title("🟢 NSE Stock Algorithmic Quant Scanner & History Portal")
+    st.title("📈 NSE Stock Algorithmic Quant Scanner")
+    st.caption("Clean Institutional Dashboard for Stock Breakout Detection & Quantitative Market Analysis")
 
     # STREAMLIT DIALOG MODAL FOR SCAN CONFIGURATION & TARGET DATE PICKER
     if hasattr(st, "dialog"):
@@ -775,7 +845,7 @@ def launch_streamlit_dashboard():
                     mime="text/csv"
                 )
 
-                # Candlestick Chart Viewer
+                # Candlestick Chart Viewer (Clean Light Mode)
                 st.markdown("---")
                 st.subheader("📈 Interactive Stock Price & Indicator Chart")
                 selected_symbol = st.selectbox("Select Stock Symbol to View Chart:", df_res['Symbol'].tolist())
@@ -790,17 +860,19 @@ def launch_streamlit_dashboard():
                         high=chart_df['High'],
                         low=chart_df['Low'],
                         close=chart_df['Close'],
-                        name='Candles'
+                        name='Candles',
+                        increasing_line_color='#16a34a',
+                        decreasing_line_color='#dc2626'
                     ))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA20'], mode='lines', name='SMA 20 (Green)', line=dict(color='#00e676', width=1.5)))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA40'], mode='lines', name='SMA 40 (Orange)', line=dict(color='#ff9100', width=1.5)))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA60'], mode='lines', name='SMA 60 (Blue)', line=dict(color='#29b6f6', width=1.5)))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SpanB'], mode='lines', name='Ichimoku Span B', line=dict(color='#e91e63', width=2)))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['PSAR'], mode='markers', name='Parabolic SAR', marker=dict(size=4, color='#ab47bc')))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA20'], mode='lines', name='SMA 20 (Blue)', line=dict(color='#2563eb', width=2)))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA40'], mode='lines', name='SMA 40 (Amber)', line=dict(color='#d97706', width=2)))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA60'], mode='lines', name='SMA 60 (Cyan)', line=dict(color='#0284c7', width=2)))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SpanB'], mode='lines', name='Ichimoku Span B', line=dict(color='#dc2626', width=2)))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['PSAR'], mode='markers', name='Parabolic SAR', marker=dict(size=5, color='#9333ea')))
 
                     fig.update_layout(
                         title=f"{selected_symbol} Daily Price Chart & Moving Averages (as of {last_target_date})",
-                        template="plotly_dark",
+                        template="plotly_white",
                         xaxis_rangeslider_visible=False,
                         height=500,
                         margin=dict(l=20, r=20, t=40, b=20)
