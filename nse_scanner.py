@@ -726,13 +726,38 @@ def launch_streamlit_dashboard():
             [data-testid="stDataFrame"] div, [data-testid="stDataFrame"] span {
                 color: #f1f5f9 !important;
             }
-            div[data-baseweb="select"] span, div[data-baseweb="select"] div, input {
+            
+            /* Clean Select Box Styling (Fixes duplicate nested input box) */
+            div[data-baseweb="select"] > div {
                 color: #f1f5f9 !important;
                 background-color: #1c2638 !important;
                 border-radius: 8px !important;
                 border: 1px solid #2d3b52 !important;
+                box-shadow: none !important;
+            }
+            div[data-baseweb="select"] div {
+                border: none !important;
+                box-shadow: none !important;
+            }
+            div[data-baseweb="select"] input {
+                border: none !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                outline: none !important;
+            }
+            div[data-baseweb="select"] span {
+                color: #f1f5f9 !important;
                 font-weight: 600 !important;
             }
+
+            /* Regular Text/Number/Date Inputs */
+            div[data-baseweb="input"] > div {
+                color: #f1f5f9 !important;
+                background-color: #1c2638 !important;
+                border-radius: 8px !important;
+                border: 1px solid #2d3b52 !important;
+            }
+
             label[data-testid="stWidgetLabel"] p {
                 color: #cbd5e1 !important;
                 font-weight: 700 !important;
