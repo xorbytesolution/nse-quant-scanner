@@ -546,186 +546,192 @@ def run_full_scan(
 
 
 # ==============================================================================
-# 4. STREAMLIT EASY & POWERFUL UI DASHBOARD WITH CLAYMORPHISM 3D DESIGN
+# 4. STREAMLIT EASY & POWERFUL UI DASHBOARD WITH MAXIMALISM DESIGN SYSTEM
 # ==============================================================================
 
 def launch_streamlit_dashboard():
-    """Launches high-end interactive quant web application in modern Claymorphism 3D Design System."""
+    """Launches high-end interactive quant web application in bold MAXIMALISM Design System."""
     st.set_page_config(
         page_title="NSE Quant Stock Scanner Pro", 
-        page_icon="🎨", 
+        page_icon="⚡", 
         layout="wide",
         initial_sidebar_state="expanded"
     )
 
-    # Masterpiece Claymorphism (Inflated Soft 3D + Double Inset Highlights) CSS
+    # Masterpiece MAXIMALISM (Vibrant Cosmic Neon & Layered Glowing Borders) CSS
     st.markdown("""
         <style>
             /* ==========================================
-               CLAYMORPHISM 3D DESIGN SYSTEM
+               MAXIMALISM DESIGN SYSTEM
                ========================================== */
             
-            /* Main Soft Pastel Background */
+            /* Deep Cosmic Background */
             .stApp {
-                background-color: #eef2ff !important;
-                color: #1e1b4b !important;
+                background-color: #0d081e !important;
+                color: #ffffff !important;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             }
             .stApp, .stApp p, .stApp span, .stApp div, .stApp label, .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6 {
-                color: #1e1b4b !important;
+                color: #ffffff !important;
             }
 
-            /* Soft Clay Sidebar */
+            /* Deep Violet Sidebar */
             .stSidebar {
-                background-color: #f5f7ff !important;
-                border-right: 2px solid #e0e7ff !important;
+                background-color: #150d30 !important;
+                border-right: 2px solid #a855f7 !important;
             }
             .stSidebar div, .stSidebar span, .stSidebar label, .stSidebar p {
-                color: #1e1b4b !important;
+                color: #ffffff !important;
             }
 
-            /* Inflated Clay Title Banner */
+            /* Glowing Multi-Color Gradient Title Banner */
             h1 {
-                background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+                background: linear-gradient(135deg, #ff007f 0%, #7928ca 50%, #00f0ff 100%) !important;
                 color: #ffffff !important;
                 font-weight: 900 !important;
                 letter-spacing: -0.5px;
                 display: inline-block !important;
-                padding: 14px 28px !important;
-                border-radius: 24px !important;
-                box-shadow: inset -6px -6px 12px rgba(0,0,0,0.2), inset 6px 6px 12px rgba(255,255,255,0.4), 8px 14px 24px rgba(79, 70, 229, 0.25) !important;
+                padding: 14px 32px !important;
+                border-radius: 16px !important;
+                box-shadow: 0 0 30px rgba(255, 0, 127, 0.5) !important;
+                border: 2px solid #ff007f !important;
                 margin-bottom: 24px !important;
+                text-shadow: 0 2px 4px rgba(0,0,0,0.5);
             }
             h1 * {
                 color: #ffffff !important;
             }
             h2, h3, h4, h5, h6 {
-                color: #1e1b4b !important;
-                font-weight: 800 !important;
+                color: #00f0ff !important;
+                font-weight: 900 !important;
+                text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
             }
 
-            /* Clay Info Box */
+            /* Maximalist Neon Banner */
             .info-box {
-                background-color: #ffffff !important;
-                border-radius: 24px !important;
-                box-shadow: inset -8px -8px 12px rgba(99, 102, 241, 0.05), inset 8px 8px 12px #ffffff, 8px 16px 24px rgba(99, 102, 241, 0.1) !important;
-                padding: 22px !important;
-                color: #1e1b4b !important;
+                background: linear-gradient(135deg, #1e0b36 0%, #2b0e4f 100%) !important;
+                border: 2px solid #00f0ff !important;
+                border-left: 6px solid #ff007f !important;
+                box-shadow: 0 0 24px rgba(0, 240, 255, 0.25) !important;
+                padding: 20px !important;
+                border-radius: 14px !important;
+                color: #ffffff !important;
                 margin-bottom: 24px !important;
-                border: 2px solid #e0e7ff !important;
             }
             .info-box b, .info-box span, .info-box div, .info-box p {
-                color: #1e1b4b !important;
+                color: #ffffff !important;
                 font-weight: 700 !important;
             }
 
-            /* Inflated 3D Clay Metric Cards */
+            /* Maximalist Glowing Metric Cards */
             .metric-card {
-                background: #ffffff !important;
-                border-radius: 24px !important;
+                background: linear-gradient(135deg, #190f38 0%, #25124d 100%) !important;
+                border: 2px solid #a855f7 !important;
+                border-radius: 16px !important;
                 padding: 22px !important;
                 text-align: center !important;
-                border: 2px solid #e0e7ff !important;
-                box-shadow: inset -8px -8px 12px rgba(99, 102, 241, 0.05), inset 8px 8px 12px #ffffff, 8px 16px 28px rgba(99, 102, 241, 0.12) !important;
+                box-shadow: 0 8px 24px rgba(168, 85, 247, 0.25), inset 0 0 12px rgba(255, 0, 127, 0.15) !important;
                 transition: all 0.2s ease !important;
             }
             .metric-card:hover {
-                transform: translateY(-4px) scale(1.01) !important;
-                box-shadow: inset -8px -8px 12px rgba(99, 102, 241, 0.08), inset 8px 8px 12px #ffffff, 12px 20px 36px rgba(99, 102, 241, 0.18) !important;
+                transform: translateY(-4px) scale(1.02) !important;
+                box-shadow: 0 12px 32px rgba(0, 240, 255, 0.4), inset 0 0 16px rgba(255, 0, 127, 0.25) !important;
+                border-color: #00f0ff !important;
             }
             .metric-value {
                 font-size: 32px !important;
                 font-weight: 900 !important;
-                color: #4f46e5 !important;
+                color: #00f0ff !important;
+                text-shadow: 0 0 12px rgba(0, 240, 255, 0.6) !important;
             }
             .metric-label {
                 font-size: 12px !important;
-                font-weight: 800 !important;
-                color: #6366f1 !important;
+                font-weight: 900 !important;
+                color: #ffe600 !important;
                 text-transform: uppercase !important;
-                letter-spacing: 0.8px !important;
+                letter-spacing: 1px !important;
                 margin-top: 6px !important;
-                background-color: #e0e7ff !important;
-                display: inline-block !important;
-                padding: 3px 10px !important;
-                border-radius: 12px !important;
+                text-shadow: 0 0 8px rgba(255, 230, 0, 0.4);
             }
 
-            /* Inflated 3D Clay Action Buttons */
+            /* Vibrant Neon Action Buttons */
             .stButton>button {
-                background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%) !important;
+                background: linear-gradient(135deg, #ff007f 0%, #7928ca 100%) !important;
                 color: #ffffff !important;
-                font-weight: 800 !important;
-                border: none !important;
-                border-radius: 20px !important;
+                font-weight: 900 !important;
+                text-transform: uppercase !important;
+                border: 2px solid #00f0ff !important;
+                border-radius: 14px !important;
                 padding: 14px 30px !important;
                 font-size: 16px !important;
-                box-shadow: inset -6px -6px 10px rgba(0,0,0,0.25), inset 6px 6px 10px rgba(255,255,255,0.35), 6px 12px 20px rgba(99, 102, 241, 0.3) !important;
-                transition: all 0.15s ease !important;
+                box-shadow: 0 0 20px rgba(255, 0, 127, 0.4) !important;
+                transition: all 0.2s ease !important;
             }
             .stButton>button * {
                 color: #ffffff !important;
-                font-weight: 800 !important;
+                font-weight: 900 !important;
             }
             .stButton>button:hover {
-                background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%) !important;
+                background: linear-gradient(135deg, #00f0ff 0%, #7928ca 100%) !important;
+                color: #ffffff !important;
                 transform: translateY(-2px) !important;
-                box-shadow: inset -6px -6px 10px rgba(0,0,0,0.25), inset 6px 6px 10px rgba(255,255,255,0.4), 8px 16px 26px rgba(99, 102, 241, 0.4) !important;
+                box-shadow: 0 0 30px rgba(0, 240, 255, 0.6) !important;
+                border-color: #ff007f !important;
             }
 
-            /* Clay Rounded Tabs */
+            /* Glowing Maximalist Tabs */
             button[data-baseweb="tab"] {
-                background: #ffffff !important;
-                border-radius: 18px !important;
-                border: 2px solid #e0e7ff !important;
-                box-shadow: inset -4px -4px 8px rgba(99, 102, 241, 0.04), inset 4px 4px 8px #ffffff, 4px 8px 16px rgba(99, 102, 241, 0.08) !important;
+                background: #190f38 !important;
+                border-radius: 14px !important;
+                border: 2px solid #a855f7 !important;
+                box-shadow: 0 4px 12px rgba(168, 85, 247, 0.2) !important;
                 margin-right: 14px !important;
                 padding: 10px 24px !important;
             }
             button[data-baseweb="tab"] div p {
-                color: #4338ca !important;
+                color: #ffffff !important;
                 font-weight: 800 !important;
                 font-size: 15px !important;
             }
             button[data-baseweb="tab"][aria-selected="true"] {
-                background: linear-gradient(135deg, #e0e7ff, #c7d2fe) !important;
-                box-shadow: inset 4px 4px 8px rgba(99, 102, 241, 0.15), inset -4px -4px 8px #ffffff !important;
+                background: linear-gradient(135deg, #ff007f, #7928ca) !important;
+                border-color: #00f0ff !important;
+                box-shadow: 0 0 20px rgba(255, 0, 127, 0.4) !important;
             }
             button[data-baseweb="tab"][aria-selected="true"] div p {
-                color: #3730a3 !important;
+                color: #ffffff !important;
                 font-weight: 900 !important;
             }
 
-            /* Clay Inset Form Controls & Data Table */
+            /* Data Tables & Inputs */
             .stDataFrame {
-                border-radius: 20px !important;
-                background-color: #ffffff !important;
-                border: 2px solid #e0e7ff !important;
-                box-shadow: inset -6px -6px 10px rgba(99, 102, 241, 0.05), inset 6px 6px 10px #ffffff, 6px 12px 20px rgba(99, 102, 241, 0.08) !important;
-                padding: 12px !important;
+                border-radius: 16px !important;
+                background-color: #150d30 !important;
+                border: 2px solid #a855f7 !important;
+                box-shadow: 0 8px 24px rgba(168, 85, 247, 0.2) !important;
+                padding: 8px !important;
             }
             [data-testid="stDataFrame"] div, [data-testid="stDataFrame"] span {
-                color: #1e1b4b !important;
+                color: #ffffff !important;
                 font-weight: 700 !important;
             }
             div[data-baseweb="select"] span, div[data-baseweb="select"] div, input {
-                color: #1e1b4b !important;
-                background-color: #ffffff !important;
-                border-radius: 16px !important;
-                border: 2px solid #c7d2fe !important;
-                box-shadow: inset -4px -4px 8px rgba(99, 102, 241, 0.04), inset 4px 4px 8px #ffffff !important;
+                color: #ffffff !important;
+                background-color: #190f38 !important;
+                border-radius: 12px !important;
+                border: 2px solid #a855f7 !important;
                 font-weight: 700 !important;
             }
             label[data-testid="stWidgetLabel"] p {
-                color: #1e1b4b !important;
+                color: #00f0ff !important;
                 font-weight: 800 !important;
                 font-size: 14px !important;
             }
         </style>
     """, unsafe_allow_html=True)
 
-    st.title("🎨 NSE Stock Quant Scanner Pro")
-    st.caption("Claymorphism 3D Institutional Dashboard for Breakout Detection & Market Analysis")
+    st.title("⚡ NSE QUANT SCANNER PRO")
+    st.caption("MAXIMALIST COSMIC NEON ALGORITHMIC STOCK BREAKOUT DETECTOR & QUANT PORTAL")
 
     # STREAMLIT DIALOG MODAL FOR SCAN CONFIGURATION & TARGET DATE PICKER
     if hasattr(st, "dialog"):
@@ -894,8 +900,8 @@ def launch_streamlit_dashboard():
 
             c4.markdown(f"""
                 <div class="metric-card">
-                    <div class="metric-value">Saved ✅</div>
-                    <div class="metric-label">Saved to History DB</div>
+                    <div class="metric-value">SAVED ✅</div>
+                    <div class="metric-label">History DB</div>
                 </div>
             """, unsafe_allow_html=True)
 
@@ -912,7 +918,7 @@ def launch_streamlit_dashboard():
                     mime="text/csv"
                 )
 
-                # Candlestick Chart Viewer (Clean Light Mode)
+                # Candlestick Chart Viewer (Maximalist Dark Glowing Theme)
                 st.markdown("---")
                 st.subheader("📈 Interactive Stock Price & Indicator Chart")
                 selected_symbol = st.selectbox("Select Stock Symbol to View Chart:", df_res['Symbol'].tolist())
@@ -928,18 +934,18 @@ def launch_streamlit_dashboard():
                         low=chart_df['Low'],
                         close=chart_df['Close'],
                         name='Candles',
-                        increasing_line_color='#16a34a',
-                        decreasing_line_color='#dc2626'
+                        increasing_line_color='#00ff66',
+                        decreasing_line_color='#ff007f'
                     ))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA20'], mode='lines', name='SMA 20 (Blue)', line=dict(color='#2563eb', width=2)))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA40'], mode='lines', name='SMA 40 (Amber)', line=dict(color='#d97706', width=2)))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA60'], mode='lines', name='SMA 60 (Cyan)', line=dict(color='#0284c7', width=2)))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SpanB'], mode='lines', name='Ichimoku Span B', line=dict(color='#dc2626', width=2)))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['PSAR'], mode='markers', name='Parabolic SAR', marker=dict(size=5, color='#9333ea')))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA20'], mode='lines', name='SMA 20 (Cyan)', line=dict(color='#00f0ff', width=2.5)))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA40'], mode='lines', name='SMA 40 (Yellow)', line=dict(color='#ffe600', width=2.5)))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA60'], mode='lines', name='SMA 60 (Magenta)', line=dict(color='#ff007f', width=2.5)))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SpanB'], mode='lines', name='Ichimoku Span B', line=dict(color='#a855f7', width=2.5)))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['PSAR'], mode='markers', name='Parabolic SAR', marker=dict(size=6, color='#ff6d00')))
 
                     fig.update_layout(
                         title=f"{selected_symbol} Daily Price Chart & Moving Averages (as of {last_target_date})",
-                        template="plotly_white",
+                        template="plotly_dark",
                         xaxis_rangeslider_visible=False,
                         height=500,
                         margin=dict(l=20, r=20, t=40, b=20)
