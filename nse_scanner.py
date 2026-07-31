@@ -546,188 +546,182 @@ def run_full_scan(
 
 
 # ==============================================================================
-# 4. STREAMLIT EASY & POWERFUL UI DASHBOARD WITH NEOBRUTALISM DESIGN SYSTEM
+# 4. STREAMLIT EASY & POWERFUL UI DASHBOARD WITH NEUMORPHISM (SOFT UI) DESIGN
 # ==============================================================================
 
 def launch_streamlit_dashboard():
-    """Launches high-end interactive quant web application in bold Neobrutalism Design System."""
+    """Launches high-end interactive quant web application in modern Neumorphism (Soft UI) Design System."""
     st.set_page_config(
         page_title="NSE Quant Stock Scanner Pro", 
-        page_icon="⚡", 
+        page_icon="📈", 
         layout="wide",
         initial_sidebar_state="expanded"
     )
 
-    # High-Contrast Neobrutalism Theme CSS
+    # Masterpiece Neumorphism (Soft UI 3D Shadows) Design System CSS
     st.markdown("""
         <style>
             /* ==========================================
-               NEOBRUTALISM DESIGN SYSTEM
+               NEUMORPHISM / SOFT UI DESIGN SYSTEM
                ========================================== */
             
-            /* Main Background & Text */
+            /* Main Soft Canvas Background */
             .stApp {
-                background-color: #f4f4f0 !important;
-                color: #000000 !important;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background-color: #e0e5ec !important;
+                color: #1d2939 !important;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             }
             .stApp, .stApp p, .stApp span, .stApp div, .stApp label, .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6 {
-                color: #000000 !important;
-            }
-            .stSidebar, .stSidebar div, .stSidebar span, .stSidebar label, .stSidebar p {
-                background-color: #fffdf7 !important;
-                color: #000000 !important;
-            }
-            .stSidebar {
-                border-right: 3.5px solid #000000 !important;
+                color: #1d2939 !important;
             }
 
-            /* Headers & Title */
+            /* Soft Extruded Sidebar */
+            .stSidebar {
+                background-color: #e0e5ec !important;
+                border-right: 1px solid #cbd5e1 !important;
+            }
+            .stSidebar div, .stSidebar span, .stSidebar label, .stSidebar p {
+                color: #1d2939 !important;
+            }
+
+            /* Headers & Title - Soft Extruded Box */
             h1 {
-                color: #000000 !important;
-                font-weight: 900 !important;
-                text-transform: uppercase;
-                letter-spacing: -1px;
-                background-color: #ffe600 !important;
+                color: #0f172a !important;
+                font-weight: 800 !important;
+                letter-spacing: -0.5px;
+                background: #e0e5ec !important;
                 display: inline-block !important;
-                padding: 6px 18px !important;
-                border: 3.5px solid #000000 !important;
-                box-shadow: 5px 5px 0px #000000 !important;
-                margin-bottom: 20px !important;
+                padding: 10px 24px !important;
+                border-radius: 16px !important;
+                box-shadow: 6px 6px 14px #a3b1c6, -6px -6px 14px #ffffff !important;
+                margin-bottom: 24px !important;
             }
             h2, h3, h4, h5, h6 {
-                color: #000000 !important;
-                font-weight: 900 !important;
-            }
-
-            /* Info Box - Neobrutalist Banner */
-            .info-box {
-                background-color: #00f0ff !important;
-                border: 3.5px solid #000000 !important;
-                box-shadow: 6px 6px 0px #000000 !important;
-                padding: 18px !important;
-                border-radius: 0px !important;
-                color: #000000 !important;
-                margin-bottom: 24px !important;
+                color: #1e293b !important;
                 font-weight: 700 !important;
             }
+
+            /* Soft Inset Info Banner */
+            .info-box {
+                background: #e0e5ec !important;
+                border-radius: 16px !important;
+                box-shadow: inset 5px 5px 10px #a3b1c6, inset -5px -5px 10px #ffffff !important;
+                padding: 20px !important;
+                color: #1d2939 !important;
+                margin-bottom: 24px !important;
+                border-left: 5px solid #2563eb !important;
+            }
             .info-box b, .info-box span, .info-box div, .info-box p {
-                color: #000000 !important;
-                font-weight: 800 !important;
+                color: #1d2939 !important;
+                font-weight: 700 !important;
             }
 
-            /* Metric Cards - Neobrutalist Style */
+            /* Soft Extruded 3D Metric Cards */
             .metric-card {
-                background: #ffffff !important;
-                border: 3.5px solid #000000 !important;
-                box-shadow: 6px 6px 0px #000000 !important;
-                border-radius: 0px !important;
-                padding: 20px !important;
+                background: #e0e5ec !important;
+                border-radius: 16px !important;
+                padding: 22px !important;
                 text-align: center !important;
-                transition: transform 0.15s ease, box-shadow 0.15s ease;
+                box-shadow: 8px 8px 16px #a3b1c6, -8px -8px 16px #ffffff !important;
+                transition: all 0.2s ease !important;
             }
             .metric-card:hover {
-                transform: translate(-3px, -3px) !important;
-                box-shadow: 9px 9px 0px #000000 !important;
+                box-shadow: 12px 12px 24px #a3b1c6, -12px -12px 24px #ffffff !important;
+                transform: translateY(-2px);
             }
             .metric-value {
-                font-size: 32px !important;
-                font-weight: 900 !important;
-                color: #000000 !important;
+                font-size: 30px !important;
+                font-weight: 800 !important;
+                color: #2563eb !important;
             }
             .metric-label {
-                font-size: 13px !important;
-                font-weight: 900 !important;
-                color: #000000 !important;
+                font-size: 12px !important;
+                font-weight: 700 !important;
+                color: #475569 !important;
                 text-transform: uppercase !important;
-                letter-spacing: 1px !important;
+                letter-spacing: 0.8px !important;
                 margin-top: 6px !important;
-                background-color: #ffde59 !important;
-                display: inline-block !important;
-                padding: 2px 8px !important;
-                border: 2px solid #000000 !important;
             }
 
-            /* Neobrutalist Action Buttons */
+            /* Soft Tactile Neumorphic Buttons */
             .stButton>button {
-                background-color: #ff2a85 !important;
-                color: #ffffff !important;
-                font-weight: 900 !important;
-                text-transform: uppercase !important;
-                border: 3.5px solid #000000 !important;
-                border-radius: 0px !important;
+                background: linear-gradient(145deg, #f0f5fc, #cacfe3) !important;
+                color: #1d2939 !important;
+                font-weight: 800 !important;
+                border: none !important;
+                border-radius: 14px !important;
                 padding: 14px 28px !important;
-                font-size: 16px !important;
-                box-shadow: 6px 6px 0px #000000 !important;
-                transition: all 0.1s ease !important;
+                font-size: 15px !important;
+                box-shadow: 6px 6px 14px #a3b1c6, -6px -6px 14px #ffffff !important;
+                transition: all 0.15s ease !important;
             }
             .stButton>button * {
-                color: #ffffff !important;
-                font-weight: 900 !important;
+                color: #1d2939 !important;
+                font-weight: 800 !important;
             }
             .stButton>button:hover {
-                background-color: #00ff66 !important;
-                color: #000000 !important;
-                transform: translate(-2px, -2px) !important;
-                box-shadow: 8px 8px 0px #000000 !important;
+                background: linear-gradient(145deg, #2563eb, #1d4ed8) !important;
+                color: #ffffff !important;
+                box-shadow: 8px 8px 18px #a3b1c6, -8px -8px 18px #ffffff !important;
             }
             .stButton>button:hover * {
-                color: #000000 !important;
+                color: #ffffff !important;
             }
             .stButton>button:active {
-                transform: translate(2px, 2px) !important;
-                box-shadow: 2px 2px 0px #000000 !important;
+                box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff !important;
             }
 
-            /* Tabs Styling */
+            /* Soft Extruded Tabs */
             button[data-baseweb="tab"] {
-                border: 3px solid #000000 !important;
-                background-color: #ffffff !important;
-                box-shadow: 4px 4px 0px #000000 !important;
-                margin-right: 12px !important;
-                padding: 8px 20px !important;
-                border-radius: 0px !important;
+                background: #e0e5ec !important;
+                border-radius: 12px !important;
+                box-shadow: 4px 4px 8px #a3b1c6, -4px -4px 8px #ffffff !important;
+                margin-right: 14px !important;
+                padding: 10px 22px !important;
+                border: none !important;
             }
             button[data-baseweb="tab"] div p {
-                color: #000000 !important;
-                font-weight: 900 !important;
-                font-size: 16px !important;
-                text-transform: uppercase !important;
+                color: #475569 !important;
+                font-weight: 700 !important;
+                font-size: 15px !important;
             }
             button[data-baseweb="tab"][aria-selected="true"] {
-                background-color: #ffe600 !important;
-                box-shadow: 6px 6px 0px #000000 !important;
+                box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff !important;
+            }
+            button[data-baseweb="tab"][aria-selected="true"] div p {
+                color: #2563eb !important;
+                font-weight: 800 !important;
             }
 
-            /* Data Tables & Input Controls */
+            /* Soft Inset Form Controls & Data Table */
             .stDataFrame {
-                border: 3.5px solid #000000 !important;
-                box-shadow: 6px 6px 0px #000000 !important;
-                border-radius: 0px !important;
-                background-color: #ffffff !important;
+                border-radius: 16px !important;
+                background-color: #e0e5ec !important;
+                box-shadow: inset 4px 4px 10px #a3b1c6, inset -4px -4px 10px #ffffff !important;
+                padding: 10px !important;
             }
             [data-testid="stDataFrame"] div, [data-testid="stDataFrame"] span {
-                color: #000000 !important;
-                font-weight: 800 !important;
+                color: #1d2939 !important;
+                font-weight: 600 !important;
             }
             div[data-baseweb="select"] span, div[data-baseweb="select"] div, input {
-                color: #000000 !important;
-                background-color: #ffffff !important;
-                border: 3px solid #000000 !important;
-                font-weight: 800 !important;
-                border-radius: 0px !important;
+                color: #1d2939 !important;
+                background-color: #e0e5ec !important;
+                border-radius: 12px !important;
+                box-shadow: inset 3px 3px 6px #a3b1c6, inset -3px -3px 6px #ffffff !important;
+                font-weight: 600 !important;
+                border: none !important;
             }
             label[data-testid="stWidgetLabel"] p {
-                color: #000000 !important;
-                font-weight: 900 !important;
+                color: #1e293b !important;
+                font-weight: 700 !important;
                 font-size: 14px !important;
-                text-transform: uppercase !important;
             }
         </style>
     """, unsafe_allow_html=True)
 
-    st.title("⚡ NSE QUANT SCANNER PRO")
-    st.caption("NEOBRUTALIST ALGORITHMIC STOCK SCANNER & QUANT MARKET BREAKOUT DETECTOR")
+    st.title("📈 NSE Stock Algorithmic Quant Scanner")
+    st.caption("Neumorphic Soft UI Institutional Dashboard for Breakout Detection & Market Analysis")
 
     # STREAMLIT DIALOG MODAL FOR SCAN CONFIGURATION & TARGET DATE PICKER
     if hasattr(st, "dialog"):
@@ -896,8 +890,8 @@ def launch_streamlit_dashboard():
 
             c4.markdown(f"""
                 <div class="metric-card">
-                    <div class="metric-value">SAVED ✅</div>
-                    <div class="metric-label">History DB</div>
+                    <div class="metric-value">Saved ✅</div>
+                    <div class="metric-label">Saved to History DB</div>
                 </div>
             """, unsafe_allow_html=True)
 
@@ -914,7 +908,7 @@ def launch_streamlit_dashboard():
                     mime="text/csv"
                 )
 
-                # Candlestick Chart Viewer (Neobrutalist Chart)
+                # Candlestick Chart Viewer (Clean Light Mode)
                 st.markdown("---")
                 st.subheader("📈 Interactive Stock Price & Indicator Chart")
                 selected_symbol = st.selectbox("Select Stock Symbol to View Chart:", df_res['Symbol'].tolist())
@@ -930,14 +924,14 @@ def launch_streamlit_dashboard():
                         low=chart_df['Low'],
                         close=chart_df['Close'],
                         name='Candles',
-                        increasing_line_color='#00c853',
-                        decreasing_line_color='#ff1744'
+                        increasing_line_color='#16a34a',
+                        decreasing_line_color='#dc2626'
                     ))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA20'], mode='lines', name='SMA 20 (Blue)', line=dict(color='#29b6f6', width=2.5)))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA40'], mode='lines', name='SMA 40 (Orange)', line=dict(color='#ff9100', width=2.5)))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA60'], mode='lines', name='SMA 60 (Cyan)', line=dict(color='#00e5ff', width=2.5)))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SpanB'], mode='lines', name='Ichimoku Span B', line=dict(color='#d500f9', width=2.5)))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['PSAR'], mode='markers', name='Parabolic SAR', marker=dict(size=6, color='#ff6d00')))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA20'], mode='lines', name='SMA 20 (Blue)', line=dict(color='#2563eb', width=2)))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA40'], mode='lines', name='SMA 40 (Amber)', line=dict(color='#d97706', width=2)))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA60'], mode='lines', name='SMA 60 (Cyan)', line=dict(color='#0284c7', width=2)))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SpanB'], mode='lines', name='Ichimoku Span B', line=dict(color='#dc2626', width=2)))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['PSAR'], mode='markers', name='Parabolic SAR', marker=dict(size=5, color='#9333ea')))
 
                     fig.update_layout(
                         title=f"{selected_symbol} Daily Price Chart & Moving Averages (as of {last_target_date})",
