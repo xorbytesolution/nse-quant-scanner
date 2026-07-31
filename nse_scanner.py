@@ -546,28 +546,28 @@ def run_full_scan(
 
 
 # ==============================================================================
-# 4. STREAMLIT EASY & POWERFUL UI DASHBOARD WITH MAXIMALISM DESIGN SYSTEM
+# 4. STREAMLIT EASY & POWERFUL UI DASHBOARD WITH SKEUOMORPHISM DESIGN SYSTEM
 # ==============================================================================
 
 def launch_streamlit_dashboard():
-    """Launches high-end interactive quant web application in bold MAXIMALISM Design System."""
+    """Launches high-end interactive quant web application in modern Skeuomorphism Design System."""
     st.set_page_config(
         page_title="NSE Quant Stock Scanner Pro", 
-        page_icon="⚡", 
+        page_icon="⚙️", 
         layout="wide",
         initial_sidebar_state="expanded"
     )
 
-    # Masterpiece MAXIMALISM (Vibrant Cosmic Neon & Layered Glowing Borders) CSS
+    # Masterpiece Skeuomorphism (Physical Metal & Beveled Depth) CSS
     st.markdown("""
         <style>
             /* ==========================================
-               MAXIMALISM DESIGN SYSTEM
+               SKEUOMORPHISM DESIGN SYSTEM
                ========================================== */
             
-            /* Deep Cosmic Background */
+            /* Physical Slate Metallic Background */
             .stApp {
-                background-color: #0d081e !important;
+                background-color: #1a1e24 !important;
                 color: #ffffff !important;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             }
@@ -575,46 +575,49 @@ def launch_streamlit_dashboard():
                 color: #ffffff !important;
             }
 
-            /* Deep Violet Sidebar */
+            /* Metallic Beveled Sidebar */
             .stSidebar {
-                background-color: #150d30 !important;
-                border-right: 2px solid #a855f7 !important;
+                background-color: #212730 !important;
+                border-right: 1px solid #364150 !important;
+                box-shadow: inset -2px 0 6px rgba(0,0,0,0.4) !important;
             }
             .stSidebar div, .stSidebar span, .stSidebar label, .stSidebar p {
                 color: #ffffff !important;
             }
 
-            /* Glowing Multi-Color Gradient Title Banner */
+            /* Physical Metallic Title Header */
             h1 {
-                background: linear-gradient(135deg, #ff007f 0%, #7928ca 50%, #00f0ff 100%) !important;
+                background: linear-gradient(180deg, #3b82f6 0%, #1e40af 100%) !important;
                 color: #ffffff !important;
-                font-weight: 900 !important;
+                font-weight: 800 !important;
                 letter-spacing: -0.5px;
                 display: inline-block !important;
-                padding: 14px 32px !important;
-                border-radius: 16px !important;
-                box-shadow: 0 0 30px rgba(255, 0, 127, 0.5) !important;
-                border: 2px solid #ff007f !important;
+                padding: 12px 28px !important;
+                border-radius: 12px !important;
+                border: 1px solid #60a5fa !important;
+                border-bottom: 3px solid #172554 !important;
+                box-shadow: 0 8px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.4) !important;
+                text-shadow: 0 1px 3px rgba(0,0,0,0.8);
                 margin-bottom: 24px !important;
-                text-shadow: 0 2px 4px rgba(0,0,0,0.5);
             }
             h1 * {
                 color: #ffffff !important;
             }
             h2, h3, h4, h5, h6 {
-                color: #00f0ff !important;
-                font-weight: 900 !important;
-                text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+                color: #e2e8f0 !important;
+                font-weight: 700 !important;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.6);
             }
 
-            /* Maximalist Neon Banner */
+            /* Skeuomorphic Metallic Info Box */
             .info-box {
-                background: linear-gradient(135deg, #1e0b36 0%, #2b0e4f 100%) !important;
-                border: 2px solid #00f0ff !important;
-                border-left: 6px solid #ff007f !important;
-                box-shadow: 0 0 24px rgba(0, 240, 255, 0.25) !important;
+                background: linear-gradient(180deg, #243042 0%, #17202c 100%) !important;
+                border: 1px solid #3d4d63 !important;
+                border-top: 1px solid #566a87 !important;
+                border-left: 6px solid #3b82f6 !important;
+                border-radius: 12px !important;
+                box-shadow: 0 6px 16px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15) !important;
                 padding: 20px !important;
-                border-radius: 14px !important;
                 color: #ffffff !important;
                 margin-bottom: 24px !important;
             }
@@ -623,115 +626,120 @@ def launch_streamlit_dashboard():
                 font-weight: 700 !important;
             }
 
-            /* Maximalist Glowing Metric Cards */
+            /* Physical Beveled Metric Cards */
             .metric-card {
-                background: linear-gradient(135deg, #190f38 0%, #25124d 100%) !important;
-                border: 2px solid #a855f7 !important;
-                border-radius: 16px !important;
+                background: linear-gradient(180deg, #2a3340 0%, #1b222b 100%) !important;
+                border: 1px solid #3d4a5c !important;
+                border-bottom: 3px solid #0f141a !important;
+                border-top: 1px solid #52637a !important;
+                border-radius: 14px !important;
                 padding: 22px !important;
                 text-align: center !important;
-                box-shadow: 0 8px 24px rgba(168, 85, 247, 0.25), inset 0 0 12px rgba(255, 0, 127, 0.15) !important;
-                transition: all 0.2s ease !important;
+                box-shadow: 0 8px 20px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15) !important;
+                transition: transform 0.15s ease, box-shadow 0.15s ease !important;
             }
             .metric-card:hover {
-                transform: translateY(-4px) scale(1.02) !important;
-                box-shadow: 0 12px 32px rgba(0, 240, 255, 0.4), inset 0 0 16px rgba(255, 0, 127, 0.25) !important;
-                border-color: #00f0ff !important;
+                transform: translateY(-2px) !important;
+                box-shadow: 0 12px 28px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.25) !important;
             }
             .metric-value {
-                font-size: 32px !important;
-                font-weight: 900 !important;
-                color: #00f0ff !important;
-                text-shadow: 0 0 12px rgba(0, 240, 255, 0.6) !important;
+                font-size: 30px !important;
+                font-weight: 800 !important;
+                color: #38bdf8 !important;
+                text-shadow: 0 0 10px rgba(56, 189, 248, 0.4) !important;
             }
             .metric-label {
                 font-size: 12px !important;
-                font-weight: 900 !important;
-                color: #ffe600 !important;
+                font-weight: 700 !important;
+                color: #94a3b8 !important;
                 text-transform: uppercase !important;
-                letter-spacing: 1px !important;
+                letter-spacing: 0.8px !important;
                 margin-top: 6px !important;
-                text-shadow: 0 0 8px rgba(255, 230, 0, 0.4);
             }
 
-            /* Vibrant Neon Action Buttons */
+            /* Physical Tactile Beveled Action Buttons */
             .stButton>button {
-                background: linear-gradient(135deg, #ff007f 0%, #7928ca 100%) !important;
+                background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%) !important;
                 color: #ffffff !important;
-                font-weight: 900 !important;
-                text-transform: uppercase !important;
-                border: 2px solid #00f0ff !important;
-                border-radius: 14px !important;
-                padding: 14px 30px !important;
-                font-size: 16px !important;
-                box-shadow: 0 0 20px rgba(255, 0, 127, 0.4) !important;
-                transition: all 0.2s ease !important;
+                font-weight: 800 !important;
+                border: 1px solid #60a5fa !important;
+                border-bottom: 3px solid #172554 !important;
+                border-radius: 10px !important;
+                padding: 13px 28px !important;
+                font-size: 15px !important;
+                box-shadow: 0 6px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.4) !important;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+                transition: all 0.15s ease !important;
             }
             .stButton>button * {
                 color: #ffffff !important;
-                font-weight: 900 !important;
+                font-weight: 800 !important;
             }
             .stButton>button:hover {
-                background: linear-gradient(135deg, #00f0ff 0%, #7928ca 100%) !important;
-                color: #ffffff !important;
-                transform: translateY(-2px) !important;
-                box-shadow: 0 0 30px rgba(0, 240, 255, 0.6) !important;
-                border-color: #ff007f !important;
+                background: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%) !important;
+                box-shadow: 0 8px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.5) !important;
+            }
+            .stButton>button:active {
+                background: linear-gradient(180deg, #1d4ed8 0%, #1e40af 100%) !important;
+                border-bottom: 1px solid #172554 !important;
+                box-shadow: inset 0 3px 6px rgba(0,0,0,0.6) !important;
+                transform: translateY(2px);
             }
 
-            /* Glowing Maximalist Tabs */
+            /* Metallic Beveled Tabs */
             button[data-baseweb="tab"] {
-                background: #190f38 !important;
-                border-radius: 14px !important;
-                border: 2px solid #a855f7 !important;
-                box-shadow: 0 4px 12px rgba(168, 85, 247, 0.2) !important;
+                background: linear-gradient(180deg, #2a3340 0%, #1b222b 100%) !important;
+                border-radius: 10px !important;
+                border: 1px solid #3d4a5c !important;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15) !important;
                 margin-right: 14px !important;
-                padding: 10px 24px !important;
+                padding: 10px 22px !important;
             }
             button[data-baseweb="tab"] div p {
-                color: #ffffff !important;
-                font-weight: 800 !important;
+                color: #cbd5e1 !important;
+                font-weight: 700 !important;
                 font-size: 15px !important;
             }
             button[data-baseweb="tab"][aria-selected="true"] {
-                background: linear-gradient(135deg, #ff007f, #7928ca) !important;
-                border-color: #00f0ff !important;
-                box-shadow: 0 0 20px rgba(255, 0, 127, 0.4) !important;
+                background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%) !important;
+                border-color: #60a5fa !important;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 12px rgba(0,0,0,0.5) !important;
             }
             button[data-baseweb="tab"][aria-selected="true"] div p {
                 color: #ffffff !important;
-                font-weight: 900 !important;
+                font-weight: 800 !important;
             }
 
-            /* Data Tables & Inputs */
+            /* Metallic Table & Form Controls */
             .stDataFrame {
-                border-radius: 16px !important;
-                background-color: #150d30 !important;
-                border: 2px solid #a855f7 !important;
-                box-shadow: 0 8px 24px rgba(168, 85, 247, 0.2) !important;
+                border-radius: 12px !important;
+                background-color: #1b222b !important;
+                border: 1px solid #3d4a5c !important;
+                box-shadow: inset 0 2px 6px rgba(0,0,0,0.5), 0 6px 16px rgba(0,0,0,0.4) !important;
                 padding: 8px !important;
             }
             [data-testid="stDataFrame"] div, [data-testid="stDataFrame"] span {
                 color: #ffffff !important;
-                font-weight: 700 !important;
+                font-weight: 600 !important;
             }
             div[data-baseweb="select"] span, div[data-baseweb="select"] div, input {
                 color: #ffffff !important;
-                background-color: #190f38 !important;
-                border-radius: 12px !important;
-                border: 2px solid #a855f7 !important;
-                font-weight: 700 !important;
+                background-color: #1b222b !important;
+                border-radius: 8px !important;
+                border: 1px solid #3d4a5c !important;
+                box-shadow: inset 0 2px 4px rgba(0,0,0,0.6) !important;
+                font-weight: 600 !important;
             }
             label[data-testid="stWidgetLabel"] p {
-                color: #00f0ff !important;
-                font-weight: 800 !important;
+                color: #cbd5e1 !important;
+                font-weight: 700 !important;
                 font-size: 14px !important;
             }
         </style>
     """, unsafe_allow_html=True)
 
-    st.title("⚡ NSE QUANT SCANNER PRO")
-    st.caption("MAXIMALIST COSMIC NEON ALGORITHMIC STOCK BREAKOUT DETECTOR & QUANT PORTAL")
+    st.title("⚙️ NSE Stock Quant Scanner Pro")
+    st.caption("Skeuomorphic Metallic Dashboard for Algorithmic Stock Breakout Detection & Market Analysis")
 
     # STREAMLIT DIALOG MODAL FOR SCAN CONFIGURATION & TARGET DATE PICKER
     if hasattr(st, "dialog"):
@@ -918,7 +926,7 @@ def launch_streamlit_dashboard():
                     mime="text/csv"
                 )
 
-                # Candlestick Chart Viewer (Maximalist Dark Glowing Theme)
+                # Candlestick Chart Viewer (Skeuomorphic Dark Metal Chart)
                 st.markdown("---")
                 st.subheader("📈 Interactive Stock Price & Indicator Chart")
                 selected_symbol = st.selectbox("Select Stock Symbol to View Chart:", df_res['Symbol'].tolist())
@@ -934,14 +942,14 @@ def launch_streamlit_dashboard():
                         low=chart_df['Low'],
                         close=chart_df['Close'],
                         name='Candles',
-                        increasing_line_color='#00ff66',
-                        decreasing_line_color='#ff007f'
+                        increasing_line_color='#00e676',
+                        decreasing_line_color='#ff3d00'
                     ))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA20'], mode='lines', name='SMA 20 (Cyan)', line=dict(color='#00f0ff', width=2.5)))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA40'], mode='lines', name='SMA 40 (Yellow)', line=dict(color='#ffe600', width=2.5)))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA60'], mode='lines', name='SMA 60 (Magenta)', line=dict(color='#ff007f', width=2.5)))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SpanB'], mode='lines', name='Ichimoku Span B', line=dict(color='#a855f7', width=2.5)))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['PSAR'], mode='markers', name='Parabolic SAR', marker=dict(size=6, color='#ff6d00')))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA20'], mode='lines', name='SMA 20 (Blue)', line=dict(color='#38bdf8', width=2.5)))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA40'], mode='lines', name='SMA 40 (Amber)', line=dict(color='#fbbf24', width=2.5)))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA60'], mode='lines', name='SMA 60 (Cyan)', line=dict(color='#22d3ee', width=2.5)))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SpanB'], mode='lines', name='Ichimoku Span B', line=dict(color='#f43f5e', width=2.5)))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['PSAR'], mode='markers', name='Parabolic SAR', marker=dict(size=6, color='#a855f7')))
 
                     fig.update_layout(
                         title=f"{selected_symbol} Daily Price Chart & Moving Averages (as of {last_target_date})",
