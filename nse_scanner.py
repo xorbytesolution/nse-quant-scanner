@@ -546,119 +546,188 @@ def run_full_scan(
 
 
 # ==============================================================================
-# 4. STREAMLIT EASY & POWERFUL UI DASHBOARD WITH LIGHT THEME & MODAL POPUP
+# 4. STREAMLIT EASY & POWERFUL UI DASHBOARD WITH NEOBRUTALISM DESIGN SYSTEM
 # ==============================================================================
 
 def launch_streamlit_dashboard():
-    """Launches high-end interactive quant web application in clean Light Theme."""
+    """Launches high-end interactive quant web application in bold Neobrutalism Design System."""
     st.set_page_config(
         page_title="NSE Quant Stock Scanner Pro", 
-        page_icon="📈", 
+        page_icon="⚡", 
         layout="wide",
         initial_sidebar_state="expanded"
     )
 
-    # Ultra-Clean Financial Dashboard Light Mode Theme CSS
+    # High-Contrast Neobrutalism Theme CSS
     st.markdown("""
         <style>
-            /* Main Background & Typography */
+            /* ==========================================
+               NEOBRUTALISM DESIGN SYSTEM
+               ========================================== */
+            
+            /* Main Background & Text */
             .stApp {
-                background-color: #f8fafc;
-                color: #0f172a;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                background-color: #f4f4f0 !important;
+                color: #000000 !important;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            }
+            .stApp, .stApp p, .stApp span, .stApp div, .stApp label, .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6 {
+                color: #000000 !important;
+            }
+            .stSidebar, .stSidebar div, .stSidebar span, .stSidebar label, .stSidebar p {
+                background-color: #fffdf7 !important;
+                color: #000000 !important;
             }
             .stSidebar {
-                background-color: #f1f5f9 !important;
-                border-right: 1px solid #e2e8f0;
+                border-right: 3.5px solid #000000 !important;
             }
 
-            /* Main Header & Title */
+            /* Headers & Title */
             h1 {
-                color: #0f172a !important;
-                font-weight: 800 !important;
-                letter-spacing: -0.5px;
+                color: #000000 !important;
+                font-weight: 900 !important;
+                text-transform: uppercase;
+                letter-spacing: -1px;
+                background-color: #ffe600 !important;
+                display: inline-block !important;
+                padding: 6px 18px !important;
+                border: 3.5px solid #000000 !important;
+                box-shadow: 5px 5px 0px #000000 !important;
+                margin-bottom: 20px !important;
             }
-            h2, h3, h4, h5 {
-                color: #1e293b !important;
+            h2, h3, h4, h5, h6 {
+                color: #000000 !important;
+                font-weight: 900 !important;
+            }
+
+            /* Info Box - Neobrutalist Banner */
+            .info-box {
+                background-color: #00f0ff !important;
+                border: 3.5px solid #000000 !important;
+                box-shadow: 6px 6px 0px #000000 !important;
+                padding: 18px !important;
+                border-radius: 0px !important;
+                color: #000000 !important;
+                margin-bottom: 24px !important;
                 font-weight: 700 !important;
             }
-
-            /* Info Box */
-            .info-box {
-                background-color: #eff6ff;
-                border: 1px solid #bfdbfe;
-                border-left: 4px solid #2563eb;
-                padding: 16px;
-                border-radius: 10px;
-                color: #1e3a8a;
-                margin-bottom: 24px;
-                box-shadow: 0 2px 8px rgba(37, 99, 235, 0.05);
+            .info-box b, .info-box span, .info-box div, .info-box p {
+                color: #000000 !important;
+                font-weight: 800 !important;
             }
 
-            /* Metric Cards */
+            /* Metric Cards - Neobrutalist Style */
             .metric-card {
-                background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-                border: 1px solid #e2e8f0;
-                border-radius: 12px;
-                padding: 20px;
-                text-align: center;
-                box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
-                transition: all 0.2s ease;
+                background: #ffffff !important;
+                border: 3.5px solid #000000 !important;
+                box-shadow: 6px 6px 0px #000000 !important;
+                border-radius: 0px !important;
+                padding: 20px !important;
+                text-align: center !important;
+                transition: transform 0.15s ease, box-shadow 0.15s ease;
             }
             .metric-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(37, 99, 235, 0.1);
-                border-color: #cbd5e1;
+                transform: translate(-3px, -3px) !important;
+                box-shadow: 9px 9px 0px #000000 !important;
             }
             .metric-value {
-                font-size: 28px;
-                font-weight: 800;
-                color: #2563eb;
+                font-size: 32px !important;
+                font-weight: 900 !important;
+                color: #000000 !important;
             }
             .metric-label {
-                font-size: 12px;
-                font-weight: 700;
-                color: #64748b;
-                text-transform: uppercase;
-                letter-spacing: 0.8px;
-                margin-top: 4px;
+                font-size: 13px !important;
+                font-weight: 900 !important;
+                color: #000000 !important;
+                text-transform: uppercase !important;
+                letter-spacing: 1px !important;
+                margin-top: 6px !important;
+                background-color: #ffde59 !important;
+                display: inline-block !important;
+                padding: 2px 8px !important;
+                border: 2px solid #000000 !important;
             }
 
-            /* Buttons */
+            /* Neobrutalist Action Buttons */
             .stButton>button {
-                background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+                background-color: #ff2a85 !important;
                 color: #ffffff !important;
-                font-weight: 700 !important;
-                border: none !important;
-                border-radius: 8px !important;
-                padding: 12px 28px !important;
-                font-size: 15px !important;
-                box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
-                transition: all 0.2s ease !important;
+                font-weight: 900 !important;
+                text-transform: uppercase !important;
+                border: 3.5px solid #000000 !important;
+                border-radius: 0px !important;
+                padding: 14px 28px !important;
+                font-size: 16px !important;
+                box-shadow: 6px 6px 0px #000000 !important;
+                transition: all 0.1s ease !important;
+            }
+            .stButton>button * {
+                color: #ffffff !important;
+                font-weight: 900 !important;
             }
             .stButton>button:hover {
-                background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
-                box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35) !important;
-                transform: translateY(-1px);
+                background-color: #00ff66 !important;
+                color: #000000 !important;
+                transform: translate(-2px, -2px) !important;
+                box-shadow: 8px 8px 0px #000000 !important;
+            }
+            .stButton>button:hover * {
+                color: #000000 !important;
+            }
+            .stButton>button:active {
+                transform: translate(2px, 2px) !important;
+                box-shadow: 2px 2px 0px #000000 !important;
             }
 
-            /* Data Tables & Inputs */
-            .stDataFrame {
-                border: 1px solid #e2e8f0;
-                border-radius: 10px;
-                background-color: #ffffff;
-            }
-            .stTextInput>div>div>input, .stSelectbox>div>div>div, .stDateInput>div>div>input {
+            /* Tabs Styling */
+            button[data-baseweb="tab"] {
+                border: 3px solid #000000 !important;
                 background-color: #ffffff !important;
-                color: #0f172a !important;
-                border: 1px solid #cbd5e1 !important;
-                border-radius: 8px !important;
+                box-shadow: 4px 4px 0px #000000 !important;
+                margin-right: 12px !important;
+                padding: 8px 20px !important;
+                border-radius: 0px !important;
+            }
+            button[data-baseweb="tab"] div p {
+                color: #000000 !important;
+                font-weight: 900 !important;
+                font-size: 16px !important;
+                text-transform: uppercase !important;
+            }
+            button[data-baseweb="tab"][aria-selected="true"] {
+                background-color: #ffe600 !important;
+                box-shadow: 6px 6px 0px #000000 !important;
+            }
+
+            /* Data Tables & Input Controls */
+            .stDataFrame {
+                border: 3.5px solid #000000 !important;
+                box-shadow: 6px 6px 0px #000000 !important;
+                border-radius: 0px !important;
+                background-color: #ffffff !important;
+            }
+            [data-testid="stDataFrame"] div, [data-testid="stDataFrame"] span {
+                color: #000000 !important;
+                font-weight: 800 !important;
+            }
+            div[data-baseweb="select"] span, div[data-baseweb="select"] div, input {
+                color: #000000 !important;
+                background-color: #ffffff !important;
+                border: 3px solid #000000 !important;
+                font-weight: 800 !important;
+                border-radius: 0px !important;
+            }
+            label[data-testid="stWidgetLabel"] p {
+                color: #000000 !important;
+                font-weight: 900 !important;
+                font-size: 14px !important;
+                text-transform: uppercase !important;
             }
         </style>
     """, unsafe_allow_html=True)
 
-    st.title("📈 NSE Stock Algorithmic Quant Scanner")
-    st.caption("Clean Institutional Dashboard for Stock Breakout Detection & Quantitative Market Analysis")
+    st.title("⚡ NSE QUANT SCANNER PRO")
+    st.caption("NEOBRUTALIST ALGORITHMIC STOCK SCANNER & QUANT MARKET BREAKOUT DETECTOR")
 
     # STREAMLIT DIALOG MODAL FOR SCAN CONFIGURATION & TARGET DATE PICKER
     if hasattr(st, "dialog"):
@@ -807,7 +876,7 @@ def launch_streamlit_dashboard():
             c1.markdown(f"""
                 <div class="metric-card">
                     <div class="metric-value">{len(df_res)}</div>
-                    <div class="metric-label">Matching Stocks ({last_target_date})</div>
+                    <div class="metric-label">Matches ({last_target_date})</div>
                 </div>
             """, unsafe_allow_html=True)
             
@@ -827,8 +896,8 @@ def launch_streamlit_dashboard():
 
             c4.markdown(f"""
                 <div class="metric-card">
-                    <div class="metric-value">Saved ✅</div>
-                    <div class="metric-label">Saved to History DB</div>
+                    <div class="metric-value">SAVED ✅</div>
+                    <div class="metric-label">History DB</div>
                 </div>
             """, unsafe_allow_html=True)
 
@@ -845,7 +914,7 @@ def launch_streamlit_dashboard():
                     mime="text/csv"
                 )
 
-                # Candlestick Chart Viewer (Clean Light Mode)
+                # Candlestick Chart Viewer (Neobrutalist Chart)
                 st.markdown("---")
                 st.subheader("📈 Interactive Stock Price & Indicator Chart")
                 selected_symbol = st.selectbox("Select Stock Symbol to View Chart:", df_res['Symbol'].tolist())
@@ -861,14 +930,14 @@ def launch_streamlit_dashboard():
                         low=chart_df['Low'],
                         close=chart_df['Close'],
                         name='Candles',
-                        increasing_line_color='#16a34a',
-                        decreasing_line_color='#dc2626'
+                        increasing_line_color='#00c853',
+                        decreasing_line_color='#ff1744'
                     ))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA20'], mode='lines', name='SMA 20 (Blue)', line=dict(color='#2563eb', width=2)))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA40'], mode='lines', name='SMA 40 (Amber)', line=dict(color='#d97706', width=2)))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA60'], mode='lines', name='SMA 60 (Cyan)', line=dict(color='#0284c7', width=2)))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SpanB'], mode='lines', name='Ichimoku Span B', line=dict(color='#dc2626', width=2)))
-                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['PSAR'], mode='markers', name='Parabolic SAR', marker=dict(size=5, color='#9333ea')))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA20'], mode='lines', name='SMA 20 (Blue)', line=dict(color='#29b6f6', width=2.5)))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA40'], mode='lines', name='SMA 40 (Orange)', line=dict(color='#ff9100', width=2.5)))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SMA60'], mode='lines', name='SMA 60 (Cyan)', line=dict(color='#00e5ff', width=2.5)))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['SpanB'], mode='lines', name='Ichimoku Span B', line=dict(color='#d500f9', width=2.5)))
+                    fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['PSAR'], mode='markers', name='Parabolic SAR', marker=dict(size=6, color='#ff6d00')))
 
                     fig.update_layout(
                         title=f"{selected_symbol} Daily Price Chart & Moving Averages (as of {last_target_date})",
