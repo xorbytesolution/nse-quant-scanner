@@ -79,7 +79,16 @@ def save_to_history(preset_mode: str, universe: str, total_matches: int, duratio
         now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         if target_date_str:
             now_str += f" [Target Date: {target_date_str}]"
-        results_json = df.to_json(orient="records") if not df.empty else "[]"
+            
+        if not df.empty:
+            clean_df = df.copy()
+            for col in list(clean_df.columns):
+                if str(col).startswith('_'):
+                    clean_df.drop(columns=[col], inplace=True, errors='ignore')
+            results_json = json.dumps(clean_df.to_dict(orient="records"))
+        else:
+            results_json = "[]"
+            
         c.execute('''
             INSERT INTO scan_logs (timestamp, preset_mode, universe, total_matches, scan_duration, results_json)
             VALUES (?, ?, ?, ?, ?, ?)
@@ -135,7 +144,20 @@ def load_history_detail(scan_id: int) -> dict | None:
         conn.close()
         if row:
             timestamp, preset_mode, universe, results_json = row
-            df = pd.read_json(results_json) if results_json else pd.DataFrame()
+            df = pd.DataFrame()
+            if results_json:
+                try:
+                    data_records = json.loads(results_json)
+                    if isinstance(data_records, list):
+                        df = pd.DataFrame(data_records)
+                    elif isinstance(data_records, str):
+                        data_nested = json.loads(data_records)
+                        df = pd.DataFrame(data_nested)
+                except Exception:
+                    try:
+                        df = pd.read_json(results_json)
+                    except Exception:
+                        df = pd.DataFrame()
             return {
                 'timestamp': timestamp,
                 'preset_mode': preset_mode,
@@ -163,7 +185,12 @@ def search_symbol_in_history(symbol_query: str) -> pd.DataFrame:
         for scan_id, timestamp, preset_mode, universe, results_json in rows:
             if not results_json or results_json == "[]":
                 continue
-            df_scan = pd.read_json(results_json)
+            try:
+                data_rec = json.loads(results_json)
+                df_scan = pd.DataFrame(data_rec) if isinstance(data_rec, list) else pd.read_json(results_json)
+            except Exception:
+                continue
+
             if 'Symbol' in df_scan.columns:
                 matched = df_scan[df_scan['Symbol'].astype(str).str.upper().str.contains(clean_query)]
                 for _, row in matched.iterrows():
@@ -546,107 +573,98 @@ def run_full_scan(
 
 
 # ==============================================================================
-# 4. STREAMLIT EASY & POWERFUL UI DASHBOARD WITH SKEUOMORPHISM DESIGN SYSTEM
+# 4. STREAMLIT EASY & POWERFUL UI DASHBOARD WITH HIGHLY ORGANIZED LAYOUT
 # ==============================================================================
 
 def launch_streamlit_dashboard():
-    """Launches high-end interactive quant web application in modern Skeuomorphism Design System."""
+    """Launches high-end interactive quant web application with clean, well-organized institutional layout."""
     st.set_page_config(
         page_title="NSE Quant Stock Scanner Pro", 
-        page_icon="⚙️", 
+        page_icon="📈", 
         layout="wide",
         initial_sidebar_state="expanded"
     )
 
-    # Masterpiece Skeuomorphism (Physical Metal & Beveled Depth) CSS
+    # Clean Professional Financial Dashboard CSS
     st.markdown("""
         <style>
-            /* ==========================================
-               SKEUOMORPHISM DESIGN SYSTEM
-               ========================================== */
-            
-            /* Physical Slate Metallic Background */
+            /* Base Canvas & Typography */
             .stApp {
-                background-color: #1a1e24 !important;
-                color: #ffffff !important;
+                background-color: #121824 !important;
+                color: #f1f5f9 !important;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             }
             .stApp, .stApp p, .stApp span, .stApp div, .stApp label, .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6 {
-                color: #ffffff !important;
+                color: #f1f5f9 !important;
             }
-
-            /* Metallic Beveled Sidebar */
             .stSidebar {
-                background-color: #212730 !important;
-                border-right: 1px solid #364150 !important;
-                box-shadow: inset -2px 0 6px rgba(0,0,0,0.4) !important;
+                background-color: #182232 !important;
+                border-right: 1px solid #283548 !important;
             }
             .stSidebar div, .stSidebar span, .stSidebar label, .stSidebar p {
-                color: #ffffff !important;
+                color: #f1f5f9 !important;
             }
 
-            /* Physical Metallic Title Header */
-            h1 {
-                background: linear-gradient(180deg, #3b82f6 0%, #1e40af 100%) !important;
-                color: #ffffff !important;
-                font-weight: 800 !important;
-                letter-spacing: -0.5px;
-                display: inline-block !important;
-                padding: 12px 28px !important;
-                border-radius: 12px !important;
-                border: 1px solid #60a5fa !important;
-                border-bottom: 3px solid #172554 !important;
-                box-shadow: 0 8px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.4) !important;
-                text-shadow: 0 1px 3px rgba(0,0,0,0.8);
-                margin-bottom: 24px !important;
+            /* Main Hero Header Card */
+            .hero-header {
+                background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+                border: 1px solid #334155;
+                border-top: 3px solid #3b82f6;
+                border-radius: 14px;
+                padding: 20px 28px;
+                margin-bottom: 24px;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
             }
-            h1 * {
+            .hero-title {
+                font-size: 26px;
+                font-weight: 800;
                 color: #ffffff !important;
+                margin: 0 0 6px 0;
             }
-            h2, h3, h4, h5, h6 {
-                color: #e2e8f0 !important;
-                font-weight: 700 !important;
-                text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+            .hero-subtitle {
+                font-size: 14px;
+                color: #94a3b8 !important;
+                margin: 0;
             }
 
-            /* Skeuomorphic Metallic Info Box */
+            /* Container Cards */
+            .section-card {
+                background-color: #182232;
+                border: 1px solid #283548;
+                border-radius: 12px;
+                padding: 20px;
+                margin-bottom: 24px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            }
+
+            /* Info Box */
             .info-box {
-                background: linear-gradient(180deg, #243042 0%, #17202c 100%) !important;
-                border: 1px solid #3d4d63 !important;
-                border-top: 1px solid #566a87 !important;
-                border-left: 6px solid #3b82f6 !important;
+                background: linear-gradient(135deg, #1e293b 0%, #172438 100%) !important;
+                border: 1px solid #334155 !important;
+                border-left: 5px solid #3b82f6 !important;
                 border-radius: 12px !important;
-                box-shadow: 0 6px 16px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15) !important;
-                padding: 20px !important;
-                color: #ffffff !important;
+                padding: 18px 22px !important;
+                color: #f1f5f9 !important;
                 margin-bottom: 24px !important;
             }
             .info-box b, .info-box span, .info-box div, .info-box p {
-                color: #ffffff !important;
-                font-weight: 700 !important;
+                color: #f1f5f9 !important;
             }
 
-            /* Physical Beveled Metric Cards */
+            /* Metric Cards */
             .metric-card {
-                background: linear-gradient(180deg, #2a3340 0%, #1b222b 100%) !important;
-                border: 1px solid #3d4a5c !important;
-                border-bottom: 3px solid #0f141a !important;
-                border-top: 1px solid #52637a !important;
-                border-radius: 14px !important;
-                padding: 22px !important;
+                background: linear-gradient(135deg, #1c2638 0%, #151d2c 100%) !important;
+                border: 1px solid #2d3b52 !important;
+                border-top: 2px solid #3b82f6 !important;
+                border-radius: 12px !important;
+                padding: 18px !important;
                 text-align: center !important;
-                box-shadow: 0 8px 20px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15) !important;
-                transition: transform 0.15s ease, box-shadow 0.15s ease !important;
-            }
-            .metric-card:hover {
-                transform: translateY(-2px) !important;
-                box-shadow: 0 12px 28px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.25) !important;
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3) !important;
             }
             .metric-value {
-                font-size: 30px !important;
+                font-size: 28px !important;
                 font-weight: 800 !important;
                 color: #38bdf8 !important;
-                text-shadow: 0 0 10px rgba(56, 189, 248, 0.4) !important;
             }
             .metric-label {
                 font-size: 12px !important;
@@ -654,80 +672,65 @@ def launch_streamlit_dashboard():
                 color: #94a3b8 !important;
                 text-transform: uppercase !important;
                 letter-spacing: 0.8px !important;
-                margin-top: 6px !important;
+                margin-top: 4px !important;
             }
 
-            /* Physical Tactile Beveled Action Buttons */
+            /* Buttons */
             .stButton>button {
-                background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%) !important;
+                background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
                 color: #ffffff !important;
-                font-weight: 800 !important;
-                border: 1px solid #60a5fa !important;
-                border-bottom: 3px solid #172554 !important;
-                border-radius: 10px !important;
-                padding: 13px 28px !important;
+                font-weight: 700 !important;
+                border: none !important;
+                border-radius: 8px !important;
+                padding: 12px 26px !important;
                 font-size: 15px !important;
-                box-shadow: 0 6px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.4) !important;
-                text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-                transition: all 0.15s ease !important;
+                box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3) !important;
             }
             .stButton>button * {
                 color: #ffffff !important;
-                font-weight: 800 !important;
+                font-weight: 700 !important;
             }
             .stButton>button:hover {
-                background: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%) !important;
-                box-shadow: 0 8px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.5) !important;
-            }
-            .stButton>button:active {
-                background: linear-gradient(180deg, #1d4ed8 0%, #1e40af 100%) !important;
-                border-bottom: 1px solid #172554 !important;
-                box-shadow: inset 0 3px 6px rgba(0,0,0,0.6) !important;
-                transform: translateY(2px);
+                background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+                box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45) !important;
             }
 
-            /* Metallic Beveled Tabs */
+            /* Tabs Styling */
             button[data-baseweb="tab"] {
-                background: linear-gradient(180deg, #2a3340 0%, #1b222b 100%) !important;
+                background: #182232 !important;
                 border-radius: 10px !important;
-                border: 1px solid #3d4a5c !important;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15) !important;
-                margin-right: 14px !important;
+                border: 1px solid #283548 !important;
+                margin-right: 12px !important;
                 padding: 10px 22px !important;
             }
             button[data-baseweb="tab"] div p {
-                color: #cbd5e1 !important;
+                color: #94a3b8 !important;
                 font-weight: 700 !important;
                 font-size: 15px !important;
             }
             button[data-baseweb="tab"][aria-selected="true"] {
-                background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%) !important;
-                border-color: #60a5fa !important;
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 12px rgba(0,0,0,0.5) !important;
+                background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+                border-color: #3b82f6 !important;
             }
             button[data-baseweb="tab"][aria-selected="true"] div p {
                 color: #ffffff !important;
                 font-weight: 800 !important;
             }
 
-            /* Metallic Table & Form Controls */
+            /* Data Tables & Inputs */
             .stDataFrame {
-                border-radius: 12px !important;
-                background-color: #1b222b !important;
-                border: 1px solid #3d4a5c !important;
-                box-shadow: inset 0 2px 6px rgba(0,0,0,0.5), 0 6px 16px rgba(0,0,0,0.4) !important;
-                padding: 8px !important;
+                border-radius: 10px !important;
+                background-color: #182232 !important;
+                border: 1px solid #283548 !important;
             }
             [data-testid="stDataFrame"] div, [data-testid="stDataFrame"] span {
-                color: #ffffff !important;
-                font-weight: 600 !important;
+                color: #f1f5f9 !important;
             }
             div[data-baseweb="select"] span, div[data-baseweb="select"] div, input {
-                color: #ffffff !important;
-                background-color: #1b222b !important;
+                color: #f1f5f9 !important;
+                background-color: #1c2638 !important;
                 border-radius: 8px !important;
-                border: 1px solid #3d4a5c !important;
-                box-shadow: inset 0 2px 4px rgba(0,0,0,0.6) !important;
+                border: 1px solid #2d3b52 !important;
                 font-weight: 600 !important;
             }
             label[data-testid="stWidgetLabel"] p {
@@ -738,8 +741,20 @@ def launch_streamlit_dashboard():
         </style>
     """, unsafe_allow_html=True)
 
-    st.title("⚙️ NSE Stock Quant Scanner Pro")
-    st.caption("Skeuomorphic Metallic Dashboard for Algorithmic Stock Breakout Detection & Market Analysis")
+    # HERO TITLE BANNER
+    st.markdown("""
+        <div class="hero-header">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <div>
+                    <h1 class="hero-title">📈 NSE Stock Algorithmic Quant Scanner Pro</h1>
+                    <p class="hero-subtitle">Real-time 17-Rule Momentum & Technical Breakout Engine for NSE Listed Equities</p>
+                </div>
+                <div>
+                    <span style="background: #1e3a8a; color: #60a5fa; padding: 6px 16px; border-radius: 20px; font-weight: 700; font-size: 13px; border: 1px solid #3b82f6;">PRO QUANT EDITION</span>
+                </div>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
 
     # STREAMLIT DIALOG MODAL FOR SCAN CONFIGURATION & TARGET DATE PICKER
     if hasattr(st, "dialog"):
@@ -926,7 +941,7 @@ def launch_streamlit_dashboard():
                     mime="text/csv"
                 )
 
-                # Candlestick Chart Viewer (Skeuomorphic Dark Metal Chart)
+                # Candlestick Chart Viewer
                 st.markdown("---")
                 st.subheader("📈 Interactive Stock Price & Indicator Chart")
                 selected_symbol = st.selectbox("Select Stock Symbol to View Chart:", df_res['Symbol'].tolist())
@@ -963,74 +978,74 @@ def launch_streamlit_dashboard():
                 st.warning(f"⚠️ No stocks matched for Trade Date {last_target_date} in this strict preset mode. Try switching Strategy to 'Super Bullish Breakout (Recommended)'!")
 
     # --------------------------------------------------------------------------
-    # TAB 2: SCAN HISTORY & PAST REPORTS (ENHANCED WITH DATE & SYMBOL FILTERS)
+    # TAB 2: SCAN HISTORY & PAST REPORTS (WELL-ORGANIZED INSTITUTIONAL LAYOUT)
     # --------------------------------------------------------------------------
     with tab_history:
-        st.subheader("📜 Scan History Database & Date-wise Filter")
-        st.caption("Filter past scans by date, strategy preset, or search for any stock symbol across historical logs.")
+        st.markdown("### 📜 Scan History Database & Analytics Portal")
+        st.caption("Browse past market scan logs, filter by date ranges, or search for any stock across historical scans.")
 
-        # --- HISTORY FILTER CONTROLS BAR ---
-        st.markdown("##### 🔍 History Filter Controls")
-        f_col1, f_col2, f_col3, f_col4 = st.columns([2, 2, 2, 2])
+        # --- SECTION 1: FILTER CONTROLS CARD ---
+        with st.container():
+            st.markdown("#### 🔍 Filter Controls & Symbol Search")
+            
+            f_col1, f_col2, f_col3, f_col4 = st.columns([2, 2, 2, 2])
+            with f_col1:
+                date_range_choice = st.selectbox(
+                    "📅 Quick Date Filter",
+                    ["All Time", "Today", "Past 7 Days", "Past 30 Days", "Custom Date Range"]
+                )
 
-        with f_col1:
-            date_range_choice = st.selectbox(
-                "📅 Quick Date Filter",
-                ["All Time", "Today", "Past 7 Days", "Past 30 Days", "Custom Date Range"]
-            )
+            start_d, end_d = None, None
+            today_date = datetime.date.today()
 
-        start_d, end_d = None, None
-        today_date = datetime.date.today()
+            if date_range_choice == "Today":
+                start_d, end_d = today_date, today_date
+            elif date_range_choice == "Past 7 Days":
+                start_d = today_date - datetime.timedelta(days=7)
+                end_d = today_date
+            elif date_range_choice == "Past 30 Days":
+                start_d = today_date - datetime.timedelta(days=30)
+                end_d = today_date
+            elif date_range_choice == "Custom Date Range":
+                with f_col2:
+                    start_d = st.date_input("Start Date", value=today_date - datetime.timedelta(days=7))
+                with f_col3:
+                    end_d = st.date_input("End Date", value=today_date)
 
-        if date_range_choice == "Today":
-            start_d, end_d = today_date, today_date
-        elif date_range_choice == "Past 7 Days":
-            start_d = today_date - datetime.timedelta(days=7)
-            end_d = today_date
-        elif date_range_choice == "Past 30 Days":
-            start_d = today_date - datetime.timedelta(days=30)
-            end_d = today_date
-        elif date_range_choice == "Custom Date Range":
-            with f_col2:
-                start_d = st.date_input("Start Date", value=today_date - datetime.timedelta(days=7))
-            with f_col3:
-                end_d = st.date_input("End Date", value=today_date)
+            with f_col4:
+                strat_filter = st.selectbox(
+                    "🎯 Strategy Filter",
+                    ["All", "Super Bullish Breakout (Recommended)", "Trend Following Breakout", "Ultra High Momentum (All 17 Rules)"]
+                )
 
-        with f_col4:
-            strat_filter = st.selectbox(
-                "🎯 Strategy Filter",
-                ["All", "Super Bullish Breakout (Recommended)", "Trend Following Breakout", "Ultra High Momentum (All 17 Rules)"]
-            )
+            symbol_search_query = st.text_input("🔎 Search Stock Symbol Across History (e.g. RELIANCE, DIXON, TCS):", placeholder="Type stock symbol...").strip()
 
-        # Stock Search Bar across all history
-        st.markdown("##### 🔎 Search Stock Symbol in Past Scans")
-        symbol_search_query = st.text_input("Enter Stock Symbol to Search History (e.g. RELIANCE, DIXON, TCS):", placeholder="Type stock name...").strip()
+        st.markdown("<br>", unsafe_allow_html=True)
 
-        st.markdown("---")
-
-        # --- IF USER IS SEARCHING A STOCK SYMBOL ---
+        # --- SECTION 2: STOCK SEARCH RESULTS (IF ACTIVE) ---
         if symbol_search_query:
-            st.subheader(f"🔎 Symbol History Results for: `{symbol_search_query.upper()}`")
+            st.markdown(f"#### 🔎 History Results for Symbol: `{symbol_search_query.upper()}`")
             df_symbol_matches = search_symbol_in_history(symbol_search_query)
 
             if not df_symbol_matches.empty:
-                st.success(f"Found `{len(df_symbol_matches)}` past scan record(s) where `{symbol_search_query.upper()}` matched!")
+                st.success(f"Found `{len(df_symbol_matches)}` past scan session(s) where `{symbol_search_query.upper()}` matched!")
                 st.dataframe(df_symbol_matches, hide_index=True, use_container_width=True)
 
                 st.download_button(
-                    label=f"📥 Download {symbol_search_query.upper()} History CSV",
+                    label=f"📥 Download {symbol_search_query.upper()} Search CSV",
                     data=df_symbol_matches.to_csv(index=False).encode('utf-8'),
                     file_name=f"{symbol_search_query.upper()}_history_scans.csv",
                     mime="text/csv"
                 )
             else:
                 st.warning(f"No past scan records found containing stock symbol `{symbol_search_query.upper()}`.")
+            st.markdown("---")
 
-        # --- GENERAL DATE-WISE HISTORY LOGS ---
+        # --- SECTION 3: GENERAL HISTORY LOGS & SUMMARY METRICS ---
         df_summary = load_history_summary(start_date=start_d, end_date=end_d, strategy_filter=strat_filter)
 
         if not df_summary.empty:
-            # Summary Metrics for Filtered History
+            # Metric Cards
             h1, h2, h3, h4 = st.columns(4)
             h1.markdown(f"""
                 <div class="metric-card">
@@ -1055,47 +1070,53 @@ def launch_streamlit_dashboard():
                 </div>
             """, unsafe_allow_html=True)
 
+            latest_date_str = str(df_summary.iloc[0]['Scan Time']).split()[0] if not df_summary.empty else 'N/A'
             h4.markdown(f"""
                 <div class="metric-card">
-                    <div class="metric-value">{df_summary.iloc[0]['Scan Time'].split()[0]}</div>
+                    <div class="metric-value">{latest_date_str}</div>
                     <div class="metric-label">Latest Scan Date</div>
                 </div>
             """, unsafe_allow_html=True)
 
             st.markdown("<br>", unsafe_allow_html=True)
 
-            col_left, col_right = st.columns([3, 1])
-            with col_left:
-                st.subheader("📋 Past Scan Sessions Table")
-                st.dataframe(df_summary, hide_index=True, use_container_width=True)
-            with col_right:
-                st.markdown("<br><br>", unsafe_allow_html=True)
-                if st.button("🗑️ Clear All History Logs", use_container_width=True):
-                    clear_history_db()
-                    st.rerun()
+            # Table of Scan Sessions
+            st.markdown("#### 📋 Past Scan Sessions Table")
+            st.dataframe(df_summary, hide_index=True, use_container_width=True)
 
             st.markdown("---")
-            st.subheader("🔍 Inspect Specific Past Scan Details")
+
+            # --- SECTION 4: INSPECT SPECIFIC SCAN ---
+            st.markdown("#### 🔍 Inspect Stock Results for Selected Past Scan")
             scan_options = {
-                f"Scan #{row['Scan ID']} | {row['Scan Time']} | {row['Strategy Preset']} ({row['Matches Found']} matches)": row['Scan ID'] 
+                f"Scan #{row['Scan ID']} | {row['Scan Time']} | Preset: {row['Strategy Preset']} ({row['Matches Found']} matches)": row['Scan ID'] 
                 for _, row in df_summary.iterrows()
             }
-            selected_scan_label = st.selectbox("Select Past Scan to View Full Stock List:", list(scan_options.keys()))
+            selected_scan_label = st.selectbox("Select Past Scan Session to View:", list(scan_options.keys()))
             selected_scan_id = scan_options[selected_scan_label]
 
             detail = load_history_detail(selected_scan_id)
             if detail and detail['df'] is not None and not detail['df'].empty:
-                st.markdown(f"**Scan Date/Time**: `{detail['timestamp']}` | **Strategy**: `{detail['preset_mode']}` | **Universe**: `{detail['universe']}`")
+                st.info(f"📅 **Scan Timestamp**: `{detail['timestamp']}` &nbsp;|&nbsp; 🎯 **Strategy**: `{detail['preset_mode']}` &nbsp;|&nbsp; ⚙️ **Universe**: `{detail['universe']}`")
                 st.dataframe(detail['df'], hide_index=True, use_container_width=True)
 
                 st.download_button(
-                    label=f"📥 Download Scan #{selected_scan_id} CSV",
+                    label=f"📥 Download Scan #{selected_scan_id} CSV Results",
                     data=detail['df'].to_csv(index=False).encode('utf-8'),
                     file_name=f"scan_history_{selected_scan_id}.csv",
                     mime="text/csv"
                 )
             else:
-                st.info("No matching stocks recorded in this specific scan session.")
+                st.info("ℹ️ No matching stocks were recorded in this specific scan session.")
+
+            # --- SECTION 5: DANGER ZONE (EXPANDER) ---
+            st.markdown("<br>", unsafe_allow_html=True)
+            with st.expander("⚠️ Danger Zone: Clear History Database"):
+                st.write("Clicking below will delete all stored scan history logs from SQLite database.")
+                if st.button("🗑️ Clear All History Database Logs"):
+                    clear_history_db()
+                    st.rerun()
+
         else:
             st.info("ℹ️ No scan history logs found matching your selected date and strategy filters. Run a live scan in Tab 1 or adjust your filters above!")
 
