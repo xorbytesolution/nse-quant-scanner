@@ -546,182 +546,186 @@ def run_full_scan(
 
 
 # ==============================================================================
-# 4. STREAMLIT EASY & POWERFUL UI DASHBOARD WITH NEUMORPHISM (SOFT UI) DESIGN
+# 4. STREAMLIT EASY & POWERFUL UI DASHBOARD WITH CLAYMORPHISM 3D DESIGN
 # ==============================================================================
 
 def launch_streamlit_dashboard():
-    """Launches high-end interactive quant web application in modern Neumorphism (Soft UI) Design System."""
+    """Launches high-end interactive quant web application in modern Claymorphism 3D Design System."""
     st.set_page_config(
         page_title="NSE Quant Stock Scanner Pro", 
-        page_icon="📈", 
+        page_icon="🎨", 
         layout="wide",
         initial_sidebar_state="expanded"
     )
 
-    # Masterpiece Neumorphism (Soft UI 3D Shadows) Design System CSS
+    # Masterpiece Claymorphism (Inflated Soft 3D + Double Inset Highlights) CSS
     st.markdown("""
         <style>
             /* ==========================================
-               NEUMORPHISM / SOFT UI DESIGN SYSTEM
+               CLAYMORPHISM 3D DESIGN SYSTEM
                ========================================== */
             
-            /* Main Soft Canvas Background */
+            /* Main Soft Pastel Background */
             .stApp {
-                background-color: #e0e5ec !important;
-                color: #1d2939 !important;
+                background-color: #eef2ff !important;
+                color: #1e1b4b !important;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             }
             .stApp, .stApp p, .stApp span, .stApp div, .stApp label, .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6 {
-                color: #1d2939 !important;
+                color: #1e1b4b !important;
             }
 
-            /* Soft Extruded Sidebar */
+            /* Soft Clay Sidebar */
             .stSidebar {
-                background-color: #e0e5ec !important;
-                border-right: 1px solid #cbd5e1 !important;
+                background-color: #f5f7ff !important;
+                border-right: 2px solid #e0e7ff !important;
             }
             .stSidebar div, .stSidebar span, .stSidebar label, .stSidebar p {
-                color: #1d2939 !important;
+                color: #1e1b4b !important;
             }
 
-            /* Headers & Title - Soft Extruded Box */
+            /* Inflated Clay Title Banner */
             h1 {
-                color: #0f172a !important;
-                font-weight: 800 !important;
+                background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+                color: #ffffff !important;
+                font-weight: 900 !important;
                 letter-spacing: -0.5px;
-                background: #e0e5ec !important;
                 display: inline-block !important;
-                padding: 10px 24px !important;
-                border-radius: 16px !important;
-                box-shadow: 6px 6px 14px #a3b1c6, -6px -6px 14px #ffffff !important;
+                padding: 14px 28px !important;
+                border-radius: 24px !important;
+                box-shadow: inset -6px -6px 12px rgba(0,0,0,0.2), inset 6px 6px 12px rgba(255,255,255,0.4), 8px 14px 24px rgba(79, 70, 229, 0.25) !important;
                 margin-bottom: 24px !important;
+            }
+            h1 * {
+                color: #ffffff !important;
             }
             h2, h3, h4, h5, h6 {
-                color: #1e293b !important;
-                font-weight: 700 !important;
+                color: #1e1b4b !important;
+                font-weight: 800 !important;
             }
 
-            /* Soft Inset Info Banner */
+            /* Clay Info Box */
             .info-box {
-                background: #e0e5ec !important;
-                border-radius: 16px !important;
-                box-shadow: inset 5px 5px 10px #a3b1c6, inset -5px -5px 10px #ffffff !important;
-                padding: 20px !important;
-                color: #1d2939 !important;
+                background-color: #ffffff !important;
+                border-radius: 24px !important;
+                box-shadow: inset -8px -8px 12px rgba(99, 102, 241, 0.05), inset 8px 8px 12px #ffffff, 8px 16px 24px rgba(99, 102, 241, 0.1) !important;
+                padding: 22px !important;
+                color: #1e1b4b !important;
                 margin-bottom: 24px !important;
-                border-left: 5px solid #2563eb !important;
+                border: 2px solid #e0e7ff !important;
             }
             .info-box b, .info-box span, .info-box div, .info-box p {
-                color: #1d2939 !important;
+                color: #1e1b4b !important;
                 font-weight: 700 !important;
             }
 
-            /* Soft Extruded 3D Metric Cards */
+            /* Inflated 3D Clay Metric Cards */
             .metric-card {
-                background: #e0e5ec !important;
-                border-radius: 16px !important;
+                background: #ffffff !important;
+                border-radius: 24px !important;
                 padding: 22px !important;
                 text-align: center !important;
-                box-shadow: 8px 8px 16px #a3b1c6, -8px -8px 16px #ffffff !important;
+                border: 2px solid #e0e7ff !important;
+                box-shadow: inset -8px -8px 12px rgba(99, 102, 241, 0.05), inset 8px 8px 12px #ffffff, 8px 16px 28px rgba(99, 102, 241, 0.12) !important;
                 transition: all 0.2s ease !important;
             }
             .metric-card:hover {
-                box-shadow: 12px 12px 24px #a3b1c6, -12px -12px 24px #ffffff !important;
-                transform: translateY(-2px);
+                transform: translateY(-4px) scale(1.01) !important;
+                box-shadow: inset -8px -8px 12px rgba(99, 102, 241, 0.08), inset 8px 8px 12px #ffffff, 12px 20px 36px rgba(99, 102, 241, 0.18) !important;
             }
             .metric-value {
-                font-size: 30px !important;
-                font-weight: 800 !important;
-                color: #2563eb !important;
+                font-size: 32px !important;
+                font-weight: 900 !important;
+                color: #4f46e5 !important;
             }
             .metric-label {
                 font-size: 12px !important;
-                font-weight: 700 !important;
-                color: #475569 !important;
+                font-weight: 800 !important;
+                color: #6366f1 !important;
                 text-transform: uppercase !important;
                 letter-spacing: 0.8px !important;
                 margin-top: 6px !important;
+                background-color: #e0e7ff !important;
+                display: inline-block !important;
+                padding: 3px 10px !important;
+                border-radius: 12px !important;
             }
 
-            /* Soft Tactile Neumorphic Buttons */
+            /* Inflated 3D Clay Action Buttons */
             .stButton>button {
-                background: linear-gradient(145deg, #f0f5fc, #cacfe3) !important;
-                color: #1d2939 !important;
+                background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%) !important;
+                color: #ffffff !important;
                 font-weight: 800 !important;
                 border: none !important;
-                border-radius: 14px !important;
-                padding: 14px 28px !important;
-                font-size: 15px !important;
-                box-shadow: 6px 6px 14px #a3b1c6, -6px -6px 14px #ffffff !important;
+                border-radius: 20px !important;
+                padding: 14px 30px !important;
+                font-size: 16px !important;
+                box-shadow: inset -6px -6px 10px rgba(0,0,0,0.25), inset 6px 6px 10px rgba(255,255,255,0.35), 6px 12px 20px rgba(99, 102, 241, 0.3) !important;
                 transition: all 0.15s ease !important;
             }
             .stButton>button * {
-                color: #1d2939 !important;
+                color: #ffffff !important;
                 font-weight: 800 !important;
             }
             .stButton>button:hover {
-                background: linear-gradient(145deg, #2563eb, #1d4ed8) !important;
-                color: #ffffff !important;
-                box-shadow: 8px 8px 18px #a3b1c6, -8px -8px 18px #ffffff !important;
-            }
-            .stButton>button:hover * {
-                color: #ffffff !important;
-            }
-            .stButton>button:active {
-                box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff !important;
+                background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%) !important;
+                transform: translateY(-2px) !important;
+                box-shadow: inset -6px -6px 10px rgba(0,0,0,0.25), inset 6px 6px 10px rgba(255,255,255,0.4), 8px 16px 26px rgba(99, 102, 241, 0.4) !important;
             }
 
-            /* Soft Extruded Tabs */
+            /* Clay Rounded Tabs */
             button[data-baseweb="tab"] {
-                background: #e0e5ec !important;
-                border-radius: 12px !important;
-                box-shadow: 4px 4px 8px #a3b1c6, -4px -4px 8px #ffffff !important;
+                background: #ffffff !important;
+                border-radius: 18px !important;
+                border: 2px solid #e0e7ff !important;
+                box-shadow: inset -4px -4px 8px rgba(99, 102, 241, 0.04), inset 4px 4px 8px #ffffff, 4px 8px 16px rgba(99, 102, 241, 0.08) !important;
                 margin-right: 14px !important;
-                padding: 10px 22px !important;
-                border: none !important;
+                padding: 10px 24px !important;
             }
             button[data-baseweb="tab"] div p {
-                color: #475569 !important;
-                font-weight: 700 !important;
+                color: #4338ca !important;
+                font-weight: 800 !important;
                 font-size: 15px !important;
             }
             button[data-baseweb="tab"][aria-selected="true"] {
-                box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff !important;
+                background: linear-gradient(135deg, #e0e7ff, #c7d2fe) !important;
+                box-shadow: inset 4px 4px 8px rgba(99, 102, 241, 0.15), inset -4px -4px 8px #ffffff !important;
             }
             button[data-baseweb="tab"][aria-selected="true"] div p {
-                color: #2563eb !important;
-                font-weight: 800 !important;
+                color: #3730a3 !important;
+                font-weight: 900 !important;
             }
 
-            /* Soft Inset Form Controls & Data Table */
+            /* Clay Inset Form Controls & Data Table */
             .stDataFrame {
-                border-radius: 16px !important;
-                background-color: #e0e5ec !important;
-                box-shadow: inset 4px 4px 10px #a3b1c6, inset -4px -4px 10px #ffffff !important;
-                padding: 10px !important;
+                border-radius: 20px !important;
+                background-color: #ffffff !important;
+                border: 2px solid #e0e7ff !important;
+                box-shadow: inset -6px -6px 10px rgba(99, 102, 241, 0.05), inset 6px 6px 10px #ffffff, 6px 12px 20px rgba(99, 102, 241, 0.08) !important;
+                padding: 12px !important;
             }
             [data-testid="stDataFrame"] div, [data-testid="stDataFrame"] span {
-                color: #1d2939 !important;
-                font-weight: 600 !important;
+                color: #1e1b4b !important;
+                font-weight: 700 !important;
             }
             div[data-baseweb="select"] span, div[data-baseweb="select"] div, input {
-                color: #1d2939 !important;
-                background-color: #e0e5ec !important;
-                border-radius: 12px !important;
-                box-shadow: inset 3px 3px 6px #a3b1c6, inset -3px -3px 6px #ffffff !important;
-                font-weight: 600 !important;
-                border: none !important;
+                color: #1e1b4b !important;
+                background-color: #ffffff !important;
+                border-radius: 16px !important;
+                border: 2px solid #c7d2fe !important;
+                box-shadow: inset -4px -4px 8px rgba(99, 102, 241, 0.04), inset 4px 4px 8px #ffffff !important;
+                font-weight: 700 !important;
             }
             label[data-testid="stWidgetLabel"] p {
-                color: #1e293b !important;
-                font-weight: 700 !important;
+                color: #1e1b4b !important;
+                font-weight: 800 !important;
                 font-size: 14px !important;
             }
         </style>
     """, unsafe_allow_html=True)
 
-    st.title("📈 NSE Stock Algorithmic Quant Scanner")
-    st.caption("Neumorphic Soft UI Institutional Dashboard for Breakout Detection & Market Analysis")
+    st.title("🎨 NSE Stock Quant Scanner Pro")
+    st.caption("Claymorphism 3D Institutional Dashboard for Breakout Detection & Market Analysis")
 
     # STREAMLIT DIALOG MODAL FOR SCAN CONFIGURATION & TARGET DATE PICKER
     if hasattr(st, "dialog"):
