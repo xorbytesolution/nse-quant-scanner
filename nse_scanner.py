@@ -1,6 +1,6 @@
 """
 ==============================================================================
-NSE STOCK QUANT SCANNER & EASY UI DASHBOARD WITH SCAN HISTORY
+NSE STOCK QUANT SCANNER PRO & ADVANCED HISTORY PORTAL
 ==============================================================================
 Author: Senior Quant Developer & Stock Market Algorithm Engineer
 Language: Python 3.12+
@@ -88,16 +88,36 @@ def save_to_history(preset_mode: str, universe: str, total_matches: int, duratio
         pass
 
 
-def load_history_summary() -> pd.DataFrame:
-    """Loads list of all past scans from the history database."""
+def load_history_summary(
+    start_date: datetime.date | None = None,
+    end_date: datetime.date | None = None,
+    strategy_filter: str = "All"
+) -> pd.DataFrame:
+    """Loads and filters list of past scans from the history database."""
     try:
         init_history_db()
         conn = sqlite3.connect(HISTORY_DB)
-        df_hist = pd.read_sql_query(
-            "SELECT id AS 'Scan ID', timestamp AS 'Scan Time', preset_mode AS 'Strategy Preset', universe AS 'Stock Universe', total_matches AS 'Matches Found', scan_duration AS 'Duration (s)' FROM scan_logs ORDER BY id DESC", 
-            conn
-        )
+        
+        query = "SELECT id AS 'Scan ID', timestamp AS 'Scan Time', preset_mode AS 'Strategy Preset', universe AS 'Stock Universe', total_matches AS 'Matches Found', scan_duration AS 'Duration (s)' FROM scan_logs WHERE 1=1"
+        params = []
+
+        if strategy_filter != "All":
+            query += " AND preset_mode = ?"
+            params.append(strategy_filter)
+
+        query += " ORDER BY id DESC"
+
+        df_hist = pd.read_sql_query(query, conn, params=params)
         conn.close()
+
+        if not df_hist.empty and (start_date or end_date):
+            df_hist['date_obj'] = pd.to_datetime(df_hist['Scan Time']).dt.date
+            if start_date:
+                df_hist = df_hist[df_hist['date_obj'] >= start_date]
+            if end_date:
+                df_hist = df_hist[df_hist['date_obj'] <= end_date]
+            df_hist.drop(columns=['date_obj'], inplace=True)
+
         return df_hist
     except Exception:
         return pd.DataFrame()
@@ -123,6 +143,42 @@ def load_history_detail(scan_id: int) -> dict | None:
     except Exception:
         pass
     return None
+
+
+def search_symbol_in_history(symbol_query: str) -> pd.DataFrame:
+    """Searches across all historical scan logs for a specific stock symbol."""
+    try:
+        init_history_db()
+        conn = sqlite3.connect(HISTORY_DB)
+        c = conn.cursor()
+        c.execute("SELECT id, timestamp, preset_mode, universe, results_json FROM scan_logs ORDER BY id DESC")
+        rows = c.fetchall()
+        conn.close()
+
+        found_records = []
+        clean_query = symbol_query.strip().upper()
+
+        for scan_id, timestamp, preset_mode, universe, results_json in rows:
+            if not results_json or results_json == "[]":
+                continue
+            df_scan = pd.read_json(results_json)
+            if 'Symbol' in df_scan.columns:
+                matched = df_scan[df_scan['Symbol'].astype(str).str.upper().str.contains(clean_query)]
+                for _, row in matched.iterrows():
+                    rec = dict(row)
+                    rec['Scan ID'] = scan_id
+                    rec['Scan Time'] = timestamp
+                    rec['Strategy'] = preset_mode
+                    found_records.append(rec)
+
+        if found_records:
+            df_matched = pd.DataFrame(found_records)
+            first_cols = ['Scan ID', 'Scan Time', 'Symbol', 'Close (₹)', 'Change (%)', 'Volume', 'Signal Status', 'Strategy']
+            other_cols = [c for c in df_matched.columns if c not in first_cols]
+            return df_matched[first_cols + other_cols]
+        return pd.DataFrame()
+    except Exception:
+        return pd.DataFrame()
 
 
 def clear_history_db():
@@ -480,7 +536,7 @@ def run_full_scan(
 
 
 # ==============================================================================
-# 4. STREAMLIT EASY & POWERFUL UI DASHBOARD WITH SCAN HISTORY
+# 4. STREAMLIT EASY & POWERFUL UI DASHBOARD WITH ADVANCED SCAN HISTORY
 # ==============================================================================
 
 def launch_streamlit_dashboard():
@@ -508,9 +564,17 @@ def launch_streamlit_dashboard():
                 border-radius: 12px;
                 padding: 18px;
                 text-align: center;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             }
-            .metric-value { font-size: 28px; font-weight: 800; color: #00ff88; }
-            .metric-label { font-size: 13px; color: #8b9bb4; text-transform: uppercase; }
+            .metric-value { font-size: 26px; font-weight: 800; color: #00ff88; }
+            .metric-label { font-size: 12px; color: #8b9bb4; text-transform: uppercase; letter-spacing: 0.5px; }
+            .filter-card {
+                background-color: #161c28;
+                border: 1px solid #283448;
+                border-radius: 10px;
+                padding: 15px;
+                margin-bottom: 20px;
+            }
         </style>
     """, unsafe_allow_html=True)
 
@@ -669,27 +733,124 @@ def launch_streamlit_dashboard():
                 st.warning("⚠️ No stocks matched in this strict preset mode today. Try switching Sidebar Strategy to 'Super Bullish Breakout (Recommended)'!")
 
     # --------------------------------------------------------------------------
-    # TAB 2: SCAN HISTORY & PAST REPORTS
+    # TAB 2: SCAN HISTORY & PAST REPORTS (ENHANCED WITH DATE & SYMBOL FILTERS)
     # --------------------------------------------------------------------------
     with tab_history:
-        st.subheader("📜 Scan History Log Database")
-        st.caption("All previous market scans are automatically saved here with timestamps and full stock lists.")
+        st.subheader("📜 Scan History Database & Date-wise Filter")
+        st.caption("Filter past scans by date, strategy preset, or search for any stock symbol across historical logs.")
 
-        df_summary = load_history_summary()
+        # --- HISTORY FILTER CONTROLS BAR ---
+        st.markdown("##### 🔍 History Filter Controls")
+        f_col1, f_col2, f_col3, f_col4 = st.columns([2, 2, 2, 2])
+
+        with f_col1:
+            date_range_choice = st.selectbox(
+                "📅 Quick Date Filter",
+                ["All Time", "Today", "Past 7 Days", "Past 30 Days", "Custom Date Range"]
+            )
+
+        start_d, end_d = None, None
+        today_date = datetime.date.today()
+
+        if date_range_choice == "Today":
+            start_d, end_d = today_date, today_date
+        elif date_range_choice == "Past 7 Days":
+            start_d = today_date - datetime.timedelta(days=7)
+            end_d = today_date
+        elif date_range_choice == "Past 30 Days":
+            start_d = today_date - datetime.timedelta(days=30)
+            end_d = today_date
+        elif date_range_choice == "Custom Date Range":
+            with f_col2:
+                start_d = st.date_input("Start Date", value=today_date - datetime.timedelta(days=7))
+            with f_col3:
+                end_d = st.date_input("End Date", value=today_date)
+
+        with f_col4:
+            strat_filter = st.selectbox(
+                "🎯 Strategy Filter",
+                ["All", "Super Bullish Breakout (Recommended)", "Trend Following Breakout", "Ultra High Momentum (All 17 Rules)"]
+            )
+
+        # Stock Search Bar across all history
+        st.markdown("##### 🔎 Search Stock Symbol in Past Scans")
+        symbol_search_query = st.text_input("Enter Stock Symbol to Search History (e.g. RELIANCE, DIXON, TCS):", placeholder="Type stock name...").strip()
+
+        st.markdown("---")
+
+        # --- IF USER IS SEARCHING A STOCK SYMBOL ---
+        if symbol_search_query:
+            st.subheader(f"🔎 Symbol History Results for: `{symbol_search_query.upper()}`")
+            df_symbol_matches = search_symbol_in_history(symbol_search_query)
+
+            if not df_symbol_matches.empty:
+                st.success(f"Found `{len(df_symbol_matches)}` past scan record(s) where `{symbol_search_query.upper()}` matched!")
+                st.dataframe(df_symbol_matches, hide_index=True, use_container_width=True)
+
+                st.download_button(
+                    label=f"📥 Download {symbol_search_query.upper()} History CSV",
+                    data=df_symbol_matches.to_csv(index=False).encode('utf-8'),
+                    file_name=f"{symbol_search_query.upper()}_history_scans.csv",
+                    mime="text/csv"
+                )
+            else:
+                st.warning(f"No past scan records found containing stock symbol `{symbol_search_query.upper()}`.")
+
+        # --- GENERAL DATE-WISE HISTORY LOGS ---
+        df_summary = load_history_summary(start_date=start_d, end_date=end_d, strategy_filter=strat_filter)
 
         if not df_summary.empty:
+            # Summary Metrics for Filtered History
+            h1, h2, h3, h4 = st.columns(4)
+            h1.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-value">{len(df_summary)}</div>
+                    <div class="metric-label">Filtered Scans Logged</div>
+                </div>
+            """, unsafe_allow_html=True)
+
+            total_matches_sum = int(df_summary['Matches Found'].sum()) if 'Matches Found' in df_summary.columns else 0
+            h2.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-value">{total_matches_sum}</div>
+                    <div class="metric-label">Total Matches Found</div>
+                </div>
+            """, unsafe_allow_html=True)
+
+            avg_dur = round(float(df_summary['Duration (s)'].mean()), 1) if 'Duration (s)' in df_summary.columns else 0
+            h3.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-value">{avg_dur}s</div>
+                    <div class="metric-label">Avg Scan Speed</div>
+                </div>
+            """, unsafe_allow_html=True)
+
+            h4.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-value">{df_summary.iloc[0]['Scan Time'].split()[0]}</div>
+                    <div class="metric-label">Latest Scan Date</div>
+                </div>
+            """, unsafe_allow_html=True)
+
+            st.markdown("<br>", unsafe_allow_html=True)
+
             col_left, col_right = st.columns([3, 1])
             with col_left:
+                st.subheader("📋 Past Scan Sessions Table")
                 st.dataframe(df_summary, hide_index=True, use_container_width=True)
             with col_right:
-                if st.button("🗑️ Clear History Logs"):
+                st.markdown("<br><br>", unsafe_allow_html=True)
+                if st.button("🗑️ Clear All History Logs", use_container_width=True):
                     clear_history_db()
                     st.rerun()
 
             st.markdown("---")
-            st.subheader("🔍 View Past Scan Detailed Results")
-            scan_options = {f"Scan #{row['Scan ID']} - {row['Scan Time']} ({row['Strategy Preset']} | {row['Matches Found']} matches)": row['Scan ID'] for _, row in df_summary.iterrows()}
-            selected_scan_label = st.selectbox("Select Past Scan to Inspect:", list(scan_options.keys()))
+            st.subheader("🔍 Inspect Specific Past Scan Details")
+            scan_options = {
+                f"Scan #{row['Scan ID']} | {row['Scan Time']} | {row['Strategy Preset']} ({row['Matches Found']} matches)": row['Scan ID'] 
+                for _, row in df_summary.iterrows()
+            }
+            selected_scan_label = st.selectbox("Select Past Scan to View Full Stock List:", list(scan_options.keys()))
             selected_scan_id = scan_options[selected_scan_label]
 
             detail = load_history_detail(selected_scan_id)
@@ -704,9 +865,9 @@ def launch_streamlit_dashboard():
                     mime="text/csv"
                 )
             else:
-                st.info("No matching stocks found in this past scan run.")
+                st.info("No matching stocks recorded in this specific scan session.")
         else:
-            st.info("ℹ️ No scan history logged yet. Run a live scan in Tab 1 to start logging history!")
+            st.info("ℹ️ No scan history logs found matching your selected date and strategy filters. Run a live scan in Tab 1 or adjust your filters above!")
 
 
 # Automatic Streamlit execution check when loaded via streamlit command
