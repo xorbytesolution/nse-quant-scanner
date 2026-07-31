@@ -70,13 +70,15 @@ def init_history_db():
         pass
 
 
-def save_to_history(preset_mode: str, universe: str, total_matches: int, duration: float, df: pd.DataFrame):
+def save_to_history(preset_mode: str, universe: str, total_matches: int, duration: float, df: pd.DataFrame, target_date_str: str | None = None):
     """Saves a completed scan run into the SQLite history database."""
     try:
         init_history_db()
         conn = sqlite3.connect(HISTORY_DB)
         c = conn.cursor()
         now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        if target_date_str:
+            now_str += f" [Target Date: {target_date_str}]"
         results_json = df.to_json(orient="records") if not df.empty else "[]"
         c.execute('''
             INSERT INTO scan_logs (timestamp, preset_mode, universe, total_matches, scan_duration, results_json)
@@ -111,7 +113,7 @@ def load_history_summary(
         conn.close()
 
         if not df_hist.empty and (start_date or end_date):
-            df_hist['date_obj'] = pd.to_datetime(df_hist['Scan Time']).dt.date
+            df_hist['date_obj'] = pd.to_datetime(df_hist['Scan Time'].str.split().str[0]).dt.date
             if start_date:
                 df_hist = df_hist[df_hist['date_obj'] >= start_date]
             if end_date:
@@ -330,10 +332,11 @@ def compute_ichimoku_span_b(df: pd.DataFrame, period=52, shift=26) -> pd.Series:
 def analyze_stock(
     symbol: str, 
     data: pd.DataFrame, 
-    preset_mode: str = "Super Bullish Breakout (Recommended)"
+    preset_mode: str = "Super Bullish Breakout (Recommended)",
+    target_date: datetime.date | None = None
 ) -> dict | None:
     """
-    Evaluates scanner conditions on OHLCV stock data according to selected preset mode.
+    Evaluates scanner conditions on OHLCV stock data up to target_date according to selected preset mode.
     Returns metrics dict if conditions are satisfied, else None.
     """
     if data is None or len(data) < 80:
@@ -347,6 +350,11 @@ def analyze_stock(
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors='coerce')
     df.dropna(subset=['Open', 'High', 'Low', 'Close'], inplace=True)
+
+    # Historical Target Date Slicing
+    if target_date is not None:
+        target_dt = pd.to_datetime(target_date)
+        df = df[df.index <= target_dt]
     
     if len(df) < 80:
         return None
@@ -474,13 +482,13 @@ def analyze_stock(
     }
 
 
-def download_and_process_symbol(symbol: str, preset_mode: str) -> dict | None:
+def download_and_process_symbol(symbol: str, preset_mode: str, target_date: datetime.date | None = None) -> dict | None:
     """Worker task to fetch stock data from Yahoo Finance and evaluate rules."""
     try:
         data = yf.Ticker(symbol).history(period="1y", interval="1d", auto_adjust=True)
         if data.empty:
             return None
-        return analyze_stock(symbol, data, preset_mode=preset_mode)
+        return analyze_stock(symbol, data, preset_mode=preset_mode, target_date=target_date)
     except Exception:
         return None
 
@@ -489,7 +497,8 @@ def run_full_scan(
     max_workers: int = 25, 
     max_stocks: int | None = None, 
     callback=None, 
-    preset_mode: str = "Super Bullish Breakout (Recommended)"
+    preset_mode: str = "Super Bullish Breakout (Recommended)",
+    target_date: datetime.date | None = None
 ) -> tuple[pd.DataFrame, dict]:
     """
     Runs multi-threaded parallel scan across NSE tickers.
@@ -509,7 +518,8 @@ def run_full_scan(
             executor.submit(
                 download_and_process_symbol, 
                 sym, 
-                preset_mode
+                preset_mode,
+                target_date
             ): sym for sym in tickers
         }
         for future in concurrent.futures.as_completed(futures):
@@ -536,7 +546,7 @@ def run_full_scan(
 
 
 # ==============================================================================
-# 4. STREAMLIT EASY & POWERFUL UI DASHBOARD WITH ADVANCED SCAN HISTORY
+# 4. STREAMLIT EASY & POWERFUL UI DASHBOARD WITH MODAL FILTER POPUP & SCAN HISTORY
 # ==============================================================================
 
 def launch_streamlit_dashboard():
@@ -580,6 +590,38 @@ def launch_streamlit_dashboard():
 
     st.title("🟢 NSE Stock Algorithmic Quant Scanner & History Portal")
 
+    # STREAMLIT DIALOG MODAL FOR SCAN CONFIGURATION & TARGET DATE PICKER
+    if hasattr(st, "dialog"):
+        @st.dialog("🎯 Configure & Run Market Scan Filter")
+        def open_scan_filter_dialog():
+            st.markdown("Select Target Trading Date, Strategy Preset, and Stock Group before starting:")
+            
+            modal_target_date = st.date_input(
+                "📅 Target Trading Date (Default: Today)",
+                value=datetime.date.today(),
+                help="Select Today for live scan, or pick any past date to run backtest scans as of that specific trading day!"
+            )
+            
+            modal_preset = st.radio(
+                "🎯 Scanner Strategy Preset:",
+                [
+                    "Super Bullish Breakout (Recommended)",
+                    "Trend Following Breakout",
+                    "Ultra High Momentum (All 17 Rules)"
+                ]
+            )
+
+            modal_universe = st.selectbox("⚙️ Stock Group Universe", ["Top 300 Liquid Stocks", "All NSE Equities", "Nifty Benchmark 100"])
+            modal_workers = st.slider("⚡ Parallel Speed", 10, 40, 25)
+
+            if st.button("▶️ Launch Market Scan Now", type="primary", use_container_width=True):
+                st.session_state['run_scan_triggered'] = True
+                st.session_state['selected_target_date'] = modal_target_date
+                st.session_state['selected_preset'] = modal_preset
+                st.session_state['selected_universe'] = modal_universe
+                st.session_state['selected_workers'] = modal_workers
+                st.rerun()
+
     # Main Tabs: Live Scanner & Scan History
     tab_live, tab_history = st.tabs(["🚀 Live Market Scanner", "📜 Scan History & Past Reports"])
 
@@ -590,7 +632,7 @@ def launch_streamlit_dashboard():
         st.markdown("""
             <div class="info-box">
                 <b>💡 Live Stock Scanner Overview</b><br>
-                • <b>Green Candle & Breakout</b>: Identifies stocks with strong daily/weekly momentum.<br>
+                • <b>Target Date Selection</b>: Click <i>'🚀 Start Live Stock Scan'</i> to choose Today or pick any historical trade date!<br>
                 • <b>Moving Average Trend (SMA 20 > 40 > 60)</b>: Confirms short, medium & long term uptrend.<br>
                 • <b>Ichimoku & Parabolic SAR</b>: Verifies indicator buy signals.<br>
                 • <b>Auto History Save</b>: Every scan is automatically logged in the History database for viewing anytime!
@@ -605,47 +647,81 @@ def launch_streamlit_dashboard():
                 "Trend Following Breakout",
                 "Ultra High Momentum (All 17 Rules)"
             ],
-            help="Select Super Bullish Breakout to get top trending stocks today!"
+            key="sidebar_preset"
         )
 
         st.sidebar.header("⚙️ Step 2: Stock Universe")
-        universe = st.sidebar.selectbox("Stocks Group", ["Top 300 Liquid Stocks", "All NSE Equities", "Nifty Benchmark 100"])
-        limit = None if universe == "All NSE Equities" else (100 if universe == "Nifty Benchmark 100" else 300)
+        universe = st.sidebar.selectbox("Stocks Group", ["Top 300 Liquid Stocks", "All NSE Equities", "Nifty Benchmark 100"], key="sidebar_universe")
 
-        workers = st.sidebar.slider("Parallel Download Speed", 10, 40, 25)
+        st.sidebar.header("📅 Step 3: Target Scan Date")
+        target_date_input = st.sidebar.date_input(
+            "Target Date (Live or Past)",
+            value=datetime.date.today(),
+            help="Select Today for live scan, or pick any past date for backtesting scans!"
+        )
 
-        if st.button("🚀 Start Live Stock Scan Now", type="primary", use_container_width=True):
+        workers = st.sidebar.slider("Parallel Download Speed", 10, 40, 25, key="sidebar_workers")
+
+        # Main Button
+        if st.button("🚀 Start Market Scan (Open Filter Modal)", type="primary", use_container_width=True):
+            if hasattr(st, "dialog"):
+                open_scan_filter_dialog()
+            else:
+                st.session_state['run_scan_triggered'] = True
+                st.session_state['selected_target_date'] = target_date_input
+                st.session_state['selected_preset'] = preset
+                st.session_state['selected_universe'] = universe
+                st.session_state['selected_workers'] = workers
+                st.rerun()
+
+        # CHECK IF SCAN TRIGGERED FROM MODAL OR BUTTON
+        if st.session_state.get('run_scan_triggered', False):
+            st.session_state['run_scan_triggered'] = False
+            
+            run_target_date = st.session_state.get('selected_target_date', target_date_input)
+            run_preset = st.session_state.get('selected_preset', preset)
+            run_universe = st.session_state.get('selected_universe', universe)
+            run_workers = st.session_state.get('selected_workers', workers)
+
+            limit = None if run_universe == "All NSE Equities" else (100 if run_universe == "Nifty Benchmark 100" else 300)
+
             start_time = time.time()
             progress_bar = st.progress(0.0)
             status_text = st.empty()
 
+            target_str = run_target_date.strftime("%Y-%m-%d")
+            status_text.text(f"⚡ Launching scan for Target Date: {target_str}...")
+
             def ui_callback(done, total):
                 ratio = done / total
                 progress_bar.progress(ratio)
-                status_text.text(f"⚡ Downloading & Scanning {done}/{total} NSE stocks ({(ratio * 100):.1f}%)...")
+                status_text.text(f"⚡ Scanning {done}/{total} NSE stocks for Trade Date: {target_str} ({(ratio * 100):.1f}%)...")
 
             df_res, stock_dfs = run_full_scan(
-                max_workers=workers, 
+                max_workers=run_workers, 
                 max_stocks=limit, 
                 callback=ui_callback, 
-                preset_mode=preset
+                preset_mode=run_preset,
+                target_date=run_target_date
             )
             
             elapsed = round(time.time() - start_time, 2)
-            status_text.success(f"✅ Scan Complete in {elapsed} Seconds!")
+            status_text.success(f"✅ Scan Complete for Target Date ({target_str}) in {elapsed} Seconds!")
             
-            # Save to SQLite History Database
+            # Save to SQLite History Database with Target Date
             save_to_history(
-                preset_mode=preset,
-                universe=universe,
+                preset_mode=run_preset,
+                universe=run_universe,
                 total_matches=len(df_res),
                 duration=elapsed,
-                df=df_res
+                df=df_res,
+                target_date_str=target_str
             )
 
             st.session_state['df_res'] = df_res
             st.session_state['stock_dfs'] = stock_dfs
             st.session_state['elapsed'] = elapsed
+            st.session_state['last_target_date'] = target_str
 
             df_res.to_csv("scanner_results.csv", index=False)
 
@@ -653,6 +729,7 @@ def launch_streamlit_dashboard():
             df_res = st.session_state['df_res']
             stock_dfs = st.session_state['stock_dfs']
             elapsed = st.session_state['elapsed']
+            last_target_date = st.session_state.get('last_target_date', datetime.date.today().strftime("%Y-%m-%d"))
 
             st.markdown("<br>", unsafe_allow_html=True)
             c1, c2, c3, c4 = st.columns(4)
@@ -660,7 +737,7 @@ def launch_streamlit_dashboard():
             c1.markdown(f"""
                 <div class="metric-card">
                     <div class="metric-value">{len(df_res)}</div>
-                    <div class="metric-label">Matching Stocks</div>
+                    <div class="metric-label">Matching Stocks ({last_target_date})</div>
                 </div>
             """, unsafe_allow_html=True)
             
@@ -688,13 +765,13 @@ def launch_streamlit_dashboard():
             st.markdown("<br>", unsafe_allow_html=True)
 
             if not df_res.empty:
-                st.subheader(f"📊 Matching Stocks List ({len(df_res)} Stocks Found - Sorted by Highest Volume)")
+                st.subheader(f"📊 Matching Stocks List for Date: {last_target_date} ({len(df_res)} Stocks Found - Sorted by Highest Volume)")
                 st.dataframe(df_res, hide_index=True, use_container_width=True)
 
                 st.download_button(
                     label="📥 Download Results CSV File (scanner_results.csv)",
                     data=df_res.to_csv(index=False).encode('utf-8'),
-                    file_name="scanner_results.csv",
+                    file_name=f"scanner_results_{last_target_date}.csv",
                     mime="text/csv"
                 )
 
@@ -722,7 +799,7 @@ def launch_streamlit_dashboard():
                     fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['PSAR'], mode='markers', name='Parabolic SAR', marker=dict(size=4, color='#ab47bc')))
 
                     fig.update_layout(
-                        title=f"{selected_symbol} Daily Price Chart & Moving Averages",
+                        title=f"{selected_symbol} Daily Price Chart & Moving Averages (as of {last_target_date})",
                         template="plotly_dark",
                         xaxis_rangeslider_visible=False,
                         height=500,
@@ -730,7 +807,7 @@ def launch_streamlit_dashboard():
                     )
                     st.plotly_chart(fig, use_container_width=True)
             else:
-                st.warning("⚠️ No stocks matched in this strict preset mode today. Try switching Sidebar Strategy to 'Super Bullish Breakout (Recommended)'!")
+                st.warning(f"⚠️ No stocks matched for Trade Date {last_target_date} in this strict preset mode. Try switching Strategy to 'Super Bullish Breakout (Recommended)'!")
 
     # --------------------------------------------------------------------------
     # TAB 2: SCAN HISTORY & PAST REPORTS (ENHANCED WITH DATE & SYMBOL FILTERS)
