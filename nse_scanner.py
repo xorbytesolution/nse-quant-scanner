@@ -842,37 +842,17 @@ def launch_streamlit_dashboard():
         </div>
     """, unsafe_allow_html=True)
 
-    # STREAMLIT DIALOG MODAL FOR SCAN CONFIGURATION & TARGET DATE PICKER
-    if hasattr(st, "dialog"):
-        @st.dialog("🎯 Configure & Run Market Scan Filter")
-        def open_scan_filter_dialog():
-            st.markdown("Select Target Trading Date, Strategy Preset, and Stock Group before starting:")
-            
-            modal_target_date = st.date_input(
-                "📅 Target Trading Date (Default: Today)",
-                value=datetime.date.today(),
-                help="Select Today for live scan, or pick any past date to run backtest scans as of that specific trading day!"
-            )
-            
-            modal_preset = st.radio(
-                "🎯 Scanner Strategy Preset:",
-                [
-                    "Super Bullish Breakout (Recommended)",
-                    "Trend Following Breakout",
-                    "Ultra High Momentum (All 17 Rules)"
-                ]
-            )
-
-            modal_universe = st.selectbox("⚙️ Stock Group Universe", ["Top 300 Liquid Stocks", "All NSE Equities", "Nifty Benchmark 100"])
-            modal_workers = st.slider("⚡ Parallel Speed", 10, 40, 25)
-
-            if st.button("▶️ Launch Market Scan Now", type="primary", use_container_width=True):
-                st.session_state['run_scan_triggered'] = True
-                st.session_state['selected_target_date'] = modal_target_date
-                st.session_state['selected_preset'] = modal_preset
-                st.session_state['selected_universe'] = modal_universe
-                st.session_state['selected_workers'] = modal_workers
-                st.rerun()
+    # Clean Sidebar Dashboard Panel
+    st.sidebar.markdown("### 📊 Engine Status")
+    st.sidebar.info("🟢 **Market Engine**: Online\n\n💾 **Scan History DB**: Active")
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("### 💡 Scanner Rules")
+    st.sidebar.markdown("""
+    • **Moving Average Trend**: SMA 20 > 40 > 60
+    • **Bullish Cloud**: Ichimoku Span B Breakout
+    • **Trend Confirmation**: Parabolic SAR < Close
+    • **Target Date**: Live or Historical Backtest
+    """)
 
     # Main Tabs: Live Scanner & Scan History
     tab_live, tab_history = st.tabs(["🚀 Live Market Scanner", "📜 Scan History & Past Reports"])
@@ -884,49 +864,58 @@ def launch_streamlit_dashboard():
         st.markdown("""
             <div class="info-box">
                 <b>💡 Live Stock Scanner Overview</b><br>
-                • <b>Target Date Selection</b>: Click <i>'🚀 Start Live Stock Scan'</i> to choose Today or pick any historical trade date!<br>
-                • <b>Moving Average Trend (SMA 20 > 40 > 60)</b>: Confirms short, medium & long term uptrend.<br>
-                • <b>Ichimoku & Parabolic SAR</b>: Verifies indicator buy signals.<br>
-                • <b>Auto History Save</b>: Every scan is automatically logged in the History database for viewing anytime!
+                • <b>Target Date Selection</b>: Choose Today for live market scan, or pick any past date for backtesting.<br>
+                • <b>Quantitative Indicators</b>: Moving Average Alignment (SMA 20 > 40 > 60) + Ichimoku Span B + Parabolic SAR.<br>
+                • <b>Auto History Save</b>: All scan results are automatically recorded in SQLite history logs!
             </div>
         """, unsafe_allow_html=True)
 
-        st.sidebar.header("🎯 Step 1: Mode Select")
-        preset = st.sidebar.radio(
-            "Scanner Strategy Preset:",
-            [
-                "Super Bullish Breakout (Recommended)",
-                "Trend Following Breakout",
-                "Ultra High Momentum (All 17 Rules)"
-            ],
-            key="sidebar_preset"
-        )
+        # Sleek 4-Column Controls Panel directly on Tab 1
+        with st.container():
+            st.markdown("#### 🎯 Market Scan Configuration & Parameters")
+            ctrl_col1, ctrl_col2, ctrl_col3, ctrl_col4 = st.columns([3, 3, 2, 2])
+            
+            with ctrl_col1:
+                preset = st.selectbox(
+                    "🎯 Strategy Preset",
+                    [
+                        "Super Bullish Breakout (Recommended)",
+                        "Trend Following Breakout",
+                        "Ultra High Momentum (All 17 Rules)"
+                    ],
+                    key="main_preset"
+                )
+            
+            with ctrl_col2:
+                universe = st.selectbox(
+                    "⚙️ Stock Group Universe",
+                    ["Top 300 Liquid Stocks", "Nifty Benchmark 100", "All NSE Equities"],
+                    key="main_universe"
+                )
+                
+            with ctrl_col3:
+                target_date_input = st.date_input(
+                    "📅 Target Trade Date",
+                    value=datetime.date.today(),
+                    help="Select Today for live scan, or pick any past date for backtesting scans!",
+                    key="main_target_date"
+                )
+                
+            with ctrl_col4:
+                workers = st.slider("⚡ Parallel Speed", 10, 40, 25, key="main_workers")
 
-        st.sidebar.header("⚙️ Step 2: Stock Universe")
-        universe = st.sidebar.selectbox("Stocks Group", ["Top 300 Liquid Stocks", "All NSE Equities", "Nifty Benchmark 100"], key="sidebar_universe")
+        st.markdown("<br>", unsafe_allow_html=True)
 
-        st.sidebar.header("📅 Step 3: Target Scan Date")
-        target_date_input = st.sidebar.date_input(
-            "Target Date (Live or Past)",
-            value=datetime.date.today(),
-            help="Select Today for live scan, or pick any past date for backtesting scans!"
-        )
+        # Single Direct Scan Launch Button
+        if st.button("🚀 Launch Live Stock Scan Now", type="primary", use_container_width=True):
+            st.session_state['run_scan_triggered'] = True
+            st.session_state['selected_target_date'] = target_date_input
+            st.session_state['selected_preset'] = preset
+            st.session_state['selected_universe'] = universe
+            st.session_state['selected_workers'] = workers
+            st.rerun()
 
-        workers = st.sidebar.slider("Parallel Download Speed", 10, 40, 25, key="sidebar_workers")
-
-        # Main Button
-        if st.button("🚀 Start Market Scan (Open Filter Modal)", type="primary", use_container_width=True):
-            if hasattr(st, "dialog"):
-                open_scan_filter_dialog()
-            else:
-                st.session_state['run_scan_triggered'] = True
-                st.session_state['selected_target_date'] = target_date_input
-                st.session_state['selected_preset'] = preset
-                st.session_state['selected_universe'] = universe
-                st.session_state['selected_workers'] = workers
-                st.rerun()
-
-        # CHECK IF SCAN TRIGGERED FROM MODAL OR BUTTON
+        # CHECK IF SCAN TRIGGERED
         if st.session_state.get('run_scan_triggered', False):
             st.session_state['run_scan_triggered'] = False
             
