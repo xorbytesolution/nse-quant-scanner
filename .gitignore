@@ -1,0 +1,8 @@
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.db
+*.csv
+*.zip
+__pycache__/
+.streamlit/secrets.toml

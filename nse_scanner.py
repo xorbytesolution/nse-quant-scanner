@@ -226,10 +226,10 @@ def clear_history_db():
 # 1. NSE SYMBOL PROVIDER
 # ==============================================================================
 
-NIFTY_500_FALLBACK_SYMBOLS = [
+NIFTY_100_BENCHMARK_SYMBOLS = [
     "RELIANCE.NS", "TCS.NS", "HDFCBANK.NS", "ICICIBANK.NS", "BHARTIARTL.NS",
-    "INFY.NS", "ITC.NS", "SBIN.NS", "LTIM.NS", "LT.NS", "HINDUNILVR.NS",
-    "AXISBANK.NS", "KOTAKBANK.NS", "M&M.NS", "TATAMOTORS.NS", "SUNPHARMA.NS",
+    "INFY.NS", "ITC.NS", "SBIN.NS", "LT.NS", "HINDUNILVR.NS",
+    "AXISBANK.NS", "KOTAKBANK.NS", "M&M.NS", "SUNPHARMA.NS",
     "NTPC.NS", "MARUTI.NS", "TITAN.NS", "ULTRACEMCO.NS", "ADANIENT.NS",
     "ADANIPORTS.NS", "ONGC.NS", "POWERGRID.NS", "TATASTEEL.NS", "COALINDIA.NS",
     "BAJFINANCE.NS", "BAJAJFINSV.NS", "JSWSTEEL.NS", "ASIANPAINT.NS", "NESTLEIND.NS",
@@ -240,20 +240,74 @@ NIFTY_500_FALLBACK_SYMBOLS = [
     "BOSCHLTD.NS", "VEDL.NS", "IOC.NS", "DLF.NS", "GAIL.NS", "SIEMENS.NS",
     "ABB.NS", "PIDILITIND.NS", "BANKBARODA.NS", "PNB.NS", "SHREECEM.NS",
     "TATAELXSI.NS", "CANBK.NS", "CHOLAFIN.NS", "POLYCAB.NS", "TORNTPHARM.NS",
-    "ZYDUSLIFE.NS", "MANANK.NS", "SRF.NS", "LODHA.NS", "TATACOMM.NS",
+    "ZYDUSLIFE.NS", "MANKIND.NS", "SRF.NS", "LODHA.NS", "TATACOMM.NS",
     "GODREJCP.NS", "DABUR.NS", "LUPIN.NS", "AUROPHARMA.NS", "PERSISTENT.NS",
     "COFORGE.NS", "MPHASIS.NS", "MUTHOOTFIN.NS", "MANAPPURAM.NS", "OBEROIRLTY.NS",
     "PHOENIXLTD.NS", "BALKRISIND.NS", "MRF.NS", "APOLLOTYRE.NS", "CEATLTD.NS",
     "BHARATFORG.NS", "ASHOKLEY.NS", "CUMMINSIND.NS", "VOLTAS.NS", "DIXON.NS",
-    "KAYNES.NS", "IRCTC.NS", "RVNL.NS", "IRFC.NS", "RECLTD.NS", "PFC.NS"
+    "KAYNES.NS", "IRCTC.NS", "RVNL.NS", "IRFC.NS", "RECLTD.NS", "PFC.NS",
+    "BHEL.NS", "NMDC.NS", "MAXHEALTH.NS", "NHPC.NS"
 ]
 
+TOP_300_LIQUID_SYMBOLS = list(dict.fromkeys(NIFTY_100_BENCHMARK_SYMBOLS + [
+    "ADANIGREEN.NS", "ADANIPOWER.NS", "ATGL.NS", "AWL.NS", "AMBUJACEM.NS",
+    "ASTRAL.NS", "AUBANK.NS", "BAJAJHLDNG.NS", "BANKINDIA.NS", "BERGEPAINT.NS",
+    "BHARATFORG.NS", "BOSCHLTD.NS", "CGPOWER.NS", "COLPAL.NS", "CONCOR.NS",
+    "COROMANDEL.NS", "CYIENT.NS", "DELHIVERY.NS", "EMAMILTD.NS", "FACT.NS",
+    "FEDERALBNK.NS", "FORTIS.NS", "GLAXO.NS", "GLAND.NS", "GODREJPROP.NS",
+    "GUJGASLTD.NS", "HAVELSS.NS", "HDFCAMC.NS", "HINDPETRO.NS", "HONAUT.NS",
+    "IDFCFIRSTB.NS", "INDIANB.NS", "INDHOTEL.NS", "INDUSTOWER.NS", "IOB.NS",
+    "IPCALAB.NS", "JISLJALEQS.NS", "JINDALSTEL.NS", "JIOFIN.NS", "JSWENERGY.NS",
+    "JUBLFOOD.NS", "KEI.NS", "KPRMILL.NS", "LALPATHLAB.NS", "LICHSGFIN.NS",
+    "LICI.NS", "LUPIN.NS", "MAHABANK.NS", "MFSL.NS", "MOTHERSON.NS",
+    "MPHASIS.NS", "MRF.NS", "NAVINFLUOR.NS", "OIL.NS", "OFSS.NS",
+    "PAGEIND.NS", "PATANJALI.NS", "PAYTM.NS", "PETRONET.NS", "PIIND.NS",
+    "POLYCAB.NS", "POONAWALLA.NS", "PRESTIGE.NS", "SAIL.NS", "SBICARD.NS",
+    "SCHAEFFLER.NS", "SOLARINDS.NS", "SONACOMS.NS", "SUNDARMFIN.NS", "SUNTV.NS",
+    "SUPREMEIND.NS", "SUZLON.NS", "SYNGENE.NS", "TATACHEM.NS", "TATAPOWER.NS",
+    "TATAINVEST.NS", "TATATECH.NS", "TORNTPOWER.NS", "UCOBANK.NS", "UNOMINDA.NS",
+    "UPL.NS", "VBL.NS", "YESBANK.NS", "ZOMATO.NS", "ZYDUSLIFE.NS",
+    "ABBOTINDIA.NS", "ACC.NS", "ALKEM.NS", "ALOKINDS.NS", "ARE&M.NS",
+    "ASTERDM.NS", "AARTIIND.NS", "ANGELONE.NS", "APARINDS.NS", "APTUS.NS",
+    "ASHOKLEY.NS", "AUBANK.NS", "BALKRISIND.NS", "BANDHANBNK.NS", "BATAINDIA.NS",
+    "BBL.NS", "BDL.NS", "BIOCON.NS", "BIRLACORPN.NS", "BLUESTARCO.NS",
+    "CAMS.NS", "CDSL.NS", "CENTRALBK.NS", "CENTURYTEX.NS", "CESC.NS",
+    "CHAMBLFERT.NS", "CHALET.NS", "COCHINSHIP.NS", "CREDITACC.NS", "CROMPTON.NS",
+    "CUMMINSIND.NS", "DATAPATTNS.NS", "DEEPAKNTR.NS", "DEVYANI.NS", "EIDPARRY.NS",
+    "EQUITASBNK.NS", "EXIDEIND.NS", "FSL.NS", "GLENMARK.NS", "GMMPFAUDLR.NS",
+    "GODREJIND.NS", "GRANULES.NS", "GRAPHITE.NS", "GREATEAST.NS", "GSPL.NS",
+    "HEG.NS", "HFCL.NS", "HINDCOPPER.NS", "HUDCO.NS", "IDBI.NS",
+    "IEX.NS", "IIFL.NS", "IRB.NS", "ISEC.NS", "JBCHEPHARM.NS",
+    "JINDALSAW.NS", "JKCEMENT.NS", "JWL.NS", "KALYANKJIL.NS", "KARURVYSYA.NS",
+    "KEC.NS", "KFINTECH.NS", "KIMS.NS", "KPRMILL.NS", "KRBL.NS",
+    "LTF.NS", "LATENTVIEW.NS", "LINDEINDIA.NS", "MANAPPURAM.NS", "MAPMYINDIA.NS",
+    "MAZDOCK.NS", "METROPOLIS.NS", "MCX.NS", "MEDANTA.NS", "NATIONALUM.NS",
+    "NAVINFLUOR.NS", "NBCC.NS", "NCC.NS", "NLCINDIA.NS", "NUVAMA.NS",
+    "OBEROIRLTY.NS", "ORISSAMINE.NS", "PNBHOUSING.NS", "PRAJIND.NS", "RADICO.NS",
+    "RAILTEL.NS", "RAMCOCEM.NS", "RITES.NS", "RBLBANK.NS", "RRKABEL.NS",
+    "SJVN.NS", "SKFINDIA.NS", "SONATSOFTW.NS", "STARHEALTH.NS", "SUMICHEM.NS",
+    "SUNDRMFAST.NS", "SUNTECK.NS", "SUPRAJIT.NS", "SYRMA.NS", "TATAELXSI.NS",
+    "TEJASNET.NS", "THERMAX.NS", "TIMKEN.NS", "TITAGARH.NS", "TRIDENT.NS",
+    "TRIVENI.NS", "UGRID.NS", "UNIONBANK.NS", "UTIAMC.NS", "VAIBHAVGBL.NS",
+    "VGUARD.NS", "VINATIORGA.NS", "VIPIND.NS", "VOLTAS.NS", "WELCORP.NS",
+    "WELSPUNLIV.NS", "WHIRLPOOL.NS", "ZENSARTECH.NS"
+]))
 
-def fetch_all_nse_symbols() -> list[str]:
+
+def fetch_all_nse_symbols(universe: str = "Top 300 Liquid Stocks") -> list[str]:
     """
-    Downloads active equity symbols directly from NSE India archives.
-    Falls back gracefully to benchmark Nifty tickers if offline/blocked.
+    Returns symbol list according to user selected universe filter:
+    - Nifty Benchmark 100: Top 100 bluechip index constituents
+    - Top 300 Liquid Stocks: Top 300 market cap & liquid equities
+    - All NSE Equities: Live download of 2400+ active equities from NSE archives
     """
+    clean_universe = (universe or "").strip()
+    if clean_universe == "Nifty Benchmark 100":
+        return sorted(list(set(NIFTY_100_BENCHMARK_SYMBOLS)))
+    elif clean_universe == "Top 300 Liquid Stocks":
+        return sorted(list(set(TOP_300_LIQUID_SYMBOLS)))
+        
+    # Download full active list for 'All NSE Equities'
     url = "https://archives.nseindia.com/content/equities/EQUITY_L.csv"
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
     tickers = []
@@ -271,7 +325,7 @@ def fetch_all_nse_symbols() -> list[str]:
         pass
 
     if not tickers:
-        tickers = NIFTY_500_FALLBACK_SYMBOLS
+        tickers = TOP_300_LIQUID_SYMBOLS
         
     return sorted(list(set(tickers)))
 
@@ -372,6 +426,10 @@ def analyze_stock(
     df = data.copy()
     df.sort_index(inplace=True)
     
+    # Strip timezone from index if present to prevent tz-naive vs tz-aware comparison TypeError
+    if getattr(df.index, 'tz', None) is not None:
+        df.index = df.index.tz_localize(None)
+
     # Numeric sanitization & handling missing values
     for col in ['Open', 'High', 'Low', 'Close', 'Volume']:
         if col in df.columns:
@@ -464,8 +522,8 @@ def analyze_stock(
         # 15. Gap Down Open
         if not (o_today < c_prev):
             return None
-        # 16. Ichimoku Span B Crossover
-        if not ((c_today > spanb_today) and (c_prev <= spanb_prev)):
+        # 16. Ichimoku Span B Cloud Position
+        if not (c_today > spanb_today):
             return None
 
     elif preset_mode == "Super Bullish Breakout (Recommended)":
@@ -510,14 +568,16 @@ def analyze_stock(
 
 
 def download_and_process_symbol(symbol: str, preset_mode: str, target_date: datetime.date | None = None) -> dict | None:
-    """Worker task to fetch stock data from Yahoo Finance and evaluate rules."""
-    try:
-        data = yf.Ticker(symbol).history(period="1y", interval="1d", auto_adjust=True)
-        if data.empty:
-            return None
-        return analyze_stock(symbol, data, preset_mode=preset_mode, target_date=target_date)
-    except Exception:
-        return None
+    """Worker task to fetch stock data from Yahoo Finance with exponential backoff retry and evaluate rules."""
+    for attempt in range(3):
+        try:
+            data = yf.Ticker(symbol).history(period="1y", interval="1d", auto_adjust=True)
+            if data is not None and not data.empty:
+                return analyze_stock(symbol, data, preset_mode=preset_mode, target_date=target_date)
+            time.sleep(0.3 * (attempt + 1))
+        except Exception:
+            time.sleep(0.5 * (attempt + 1))
+    return None
 
 
 def run_full_scan(
@@ -525,14 +585,15 @@ def run_full_scan(
     max_stocks: int | None = None, 
     callback=None, 
     preset_mode: str = "Super Bullish Breakout (Recommended)",
-    target_date: datetime.date | None = None
+    target_date: datetime.date | None = None,
+    universe: str = "Top 300 Liquid Stocks"
 ) -> tuple[pd.DataFrame, dict]:
     """
     Runs multi-threaded parallel scan across NSE tickers.
     Returns (DataFrame sorted by Volume descending, stock_charts_dict).
     """
-    tickers = fetch_all_nse_symbols()
-    if max_stocks and max_stocks > 0:
+    tickers = fetch_all_nse_symbols(universe=universe)
+    if max_stocks and max_stocks > 0 and universe == "All NSE Equities":
         tickers = tickers[:max_stocks]
 
     total = len(tickers)
@@ -893,7 +954,8 @@ def launch_streamlit_dashboard():
                 max_stocks=limit, 
                 callback=ui_callback, 
                 preset_mode=run_preset,
-                target_date=run_target_date
+                target_date=run_target_date,
+                universe=run_universe
             )
             
             elapsed = round(time.time() - start_time, 2)
