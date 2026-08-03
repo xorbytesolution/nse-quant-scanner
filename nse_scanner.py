@@ -1007,8 +1007,34 @@ def launch_streamlit_dashboard():
             st.markdown("<br>", unsafe_allow_html=True)
 
             if not df_res.empty:
-                st.subheader(f"📊 Matching Stocks List for Date: {last_target_date} ({len(df_res)} Stocks Found - Sorted by Highest Volume)")
-                st.dataframe(df_res, hide_index=True, use_container_width=True)
+                top_pick = df_res.iloc[0]
+                
+                # 🏆 TOP QUANT PICK HIGHLIGHT BANNER
+                st.markdown(f"""
+                    <div style="background: linear-gradient(135deg, #064e3b 0%, #022c22 100%); border: 2px solid #10b981; border-radius: 12px; padding: 18px 24px; margin: 15px 0 24px 0; box-shadow: 0 8px 20px rgba(16, 185, 129, 0.25);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                            <div>
+                                <span style="background: #10b981; color: #022c22; padding: 4px 12px; border-radius: 12px; font-weight: 800; font-size: 12px; letter-spacing: 0.5px;">🏆 #1 TOP QUANT BREAKOUT PICK</span>
+                                <h2 style="margin: 8px 0 2px 0; color: #34d399 !important; font-size: 26px; font-weight: 900;">{top_pick['Symbol']} <span style="font-size: 18px; color: #a7f3d0;">(₹{top_pick['Close (₹)']})</span></h2>
+                                <p style="margin: 0; color: #6ee7b7 !important; font-weight: 600; font-size: 14px;">Day Gain: <b>{top_pick['Change (%)']}</b> &nbsp;|&nbsp; Volume: <b>{top_pick['Volume']:,} shares</b> &nbsp;|&nbsp; Signal: <b>{top_pick['Signal Status']}</b></p>
+                            </div>
+                            <div style="text-align: right;">
+                                <span style="font-size: 36px;">🌟</span>
+                            </div>
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
+
+                st.subheader(f"📊 Matching Stocks List for Date: {last_target_date} ({len(df_res)} Stocks Found - Row #1 Highlighted in Green)")
+                
+                # Function to highlight the top stock row (row 0) in green
+                def highlight_top_stock_row(df):
+                    style_df = pd.DataFrame('', index=df.index, columns=df.columns)
+                    if not df.empty:
+                        style_df.iloc[0] = 'background-color: rgba(16, 185, 129, 0.22); color: #34d399; font-weight: bold; border-left: 5px solid #10b981;'
+                    return style_df
+
+                st.dataframe(df_res.style.apply(highlight_top_stock_row, axis=None), hide_index=True, use_container_width=True)
 
                 st.download_button(
                     label="📥 Download Results CSV File (scanner_results.csv)",
