@@ -1,0 +1,58 @@
+==============================================================================
+NSE STOCK QUANT SCANNER & MARKET DATA - RUN COMMANDS
+==============================================================================
+
+Folder Path:
+C:\Users\mo.mastur\OneDrive\Desktop\scriptpy
+
+
+------------------------------------------------------------------------------
+1) INSTALL ALL REQUIRED DEPENDENCIES
+------------------------------------------------------------------------------
+python -m pip install -r requirements.txt
+
+
+------------------------------------------------------------------------------
+2) RUN NSE STOCK QUANT SCANNER (CLI TERMINAL MODE)
+------------------------------------------------------------------------------
+python nse_scanner.py
+
+What it does:
+- Automatically downloads live active stock symbols from NSE archives (2,300+ symbols).
+- Uses multi-threading (25 workers) for fast parallel analysis.
+- Evaluates 17 strict quantitative technical indicators & breakout conditions:
+  1-7. 7-Day Daily Range Expansion (Today High-Low > Past 7 Days)
+  8. Bullish Daily Candle (Close > Open)
+  9. Day-over-day Gain (Close > Prev Close)
+  10. Bullish Weekly Candle (Weekly Close > Weekly Open)
+  11. Bullish Monthly Candle (Monthly Close > Monthly Open)
+  12. Volume Filter (Yesterday Volume > 10,000)
+  13. SMA Alignment (SMA20 > SMA40)
+  14. SMA Alignment (SMA40 > SMA60)
+  15. Gap Down Discount Open (Open < Yesterday Close)
+  16. Ichimoku Senkou Span B Cloud Breakout (Close > Span B 9,26,52)
+  17. Parabolic SAR Bullish Trend (PSAR < Close)
+- Saves output table to: scanner_results.csv (sorted by Volume descending).
+
+
+------------------------------------------------------------------------------
+3) RUN INTERACTIVE WEB DASHBOARD UI
+------------------------------------------------------------------------------
+python -m streamlit run nse_scanner.py
+
+
+Or alternative command:
+python nse_scanner.py --ui
+
+What it does:
+- Opens Web Dashboard in default browser at http://localhost:8501
+- Interactive Strategy Presets (Super Bullish Breakout, Trend Following, Ultra High Momentum).
+- Real-time Progress Bar & Glassmorphism Analytics Cards.
+- Interactive Plotly Candlestick Chart Viewer for matched stocks.
+- 1-click Download button for scanner_results.csv.
+
+
+------------------------------------------------------------------------------
+4) DAILY MARKET DATA INGESTION (SQLITE)
+------------------------------------------------------------------------------
+python market_data_priority.py --date YYYY-MM-DD
