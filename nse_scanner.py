@@ -29,9 +29,9 @@ if sys.stdout and hasattr(sys.stdout, 'reconfigure'):
 
 # Try importing pandas_ta if available
 try:
-    import pandas_ta as ta
+    import pandas_ta as ta  # type: ignore
     HAS_PANDAS_TA = True
-except ImportError:
+except Exception:
     HAS_PANDAS_TA = False
 
 # Try importing streamlit & plotly for Interactive Web UI
