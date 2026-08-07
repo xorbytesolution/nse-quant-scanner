@@ -1188,22 +1188,18 @@ def launch_streamlit_dashboard():
                     if 'PSAR' in chart_df.columns:
                         fig.add_trace(go.Scatter(x=chart_df.index, y=chart_df['PSAR'], mode='markers', name='Parabolic SAR', marker=dict(size=5, color='#a855f7')), row=1, col=1)
 
-                    # Ichimoku Cloud (Span A & Span B with shaded polygon)
+                    # Ichimoku Cloud Lines (Senkou Span A & Senkou Span B)
                     if 'SpanA' in chart_df.columns and 'SpanB' in chart_df.columns:
                         fig.add_trace(go.Scatter(
                             x=chart_df.index, y=chart_df['SpanA'],
-                            mode='lines', name='Senkou Span A',
-                            line=dict(color='rgba(74, 222, 128, 0.8)', width=1.5),
-                            row=1, col=1
-                        ))
+                            mode='lines', name='Ichimoku Span A (Green)',
+                            line=dict(color='#4ade80', width=2)
+                        ), row=1, col=1)
                         fig.add_trace(go.Scatter(
                             x=chart_df.index, y=chart_df['SpanB'],
-                            mode='lines', name='Senkou Span B',
-                            line=dict(color='rgba(248, 113, 113, 0.8)', width=1.5),
-                            fill='tonexty',
-                            fillcolor='rgba(59, 130, 246, 0.18)',
-                            row=1, col=1
-                        ))
+                            mode='lines', name='Ichimoku Span B (Red)',
+                            line=dict(color='#f87171', width=2)
+                        ), row=1, col=1)
 
                     # 2. Volume Subplot
                     vol_colors = ['#00e676' if c >= o else '#ff3d00' for c, o in zip(chart_df['Close'], chart_df['Open'])]
