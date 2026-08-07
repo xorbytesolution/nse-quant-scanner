@@ -940,7 +940,12 @@ def launch_streamlit_dashboard():
 
     # Clean Sidebar Dashboard Panel
     st.sidebar.markdown("### 📊 Engine Status")
-    st.sidebar.info(f"<b>Market Feed Status</b>:<br>{market_badge}<br><br><b>Local SQLite Engine</b>: {'🟢 Active' if HAS_LOCAL_DB_ENGINE else '⚪ Fallback Mode'}<br><br><b>Scan History DB</b>: Active", unsafe_allow_html=True)
+    engine_status = '🟢 Active' if HAS_LOCAL_DB_ENGINE else '⚪ Fallback Mode'
+    st.sidebar.info(
+        f"**Market Feed Status**:\n{market_badge}\n\n"
+        f"**Local SQLite Engine**: {engine_status}\n\n"
+        f"**Scan History DB**: Active"
+    )
     st.sidebar.markdown("---")
     st.sidebar.markdown("### 💡 Scanner Rules")
     st.sidebar.markdown("""
