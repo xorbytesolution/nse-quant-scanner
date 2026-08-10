@@ -301,40 +301,76 @@ TOP_300_LIQUID_SYMBOLS = list(dict.fromkeys(NIFTY_100_BENCHMARK_SYMBOLS + [
     "WELSPUNLIV.NS", "WHIRLPOOL.NS", "ZENSARTECH.NS"
 ]))
 
+# Set of NSE Futures & Options (F&O) stock symbols to exclude when Cash-only universe is selected
+NSE_FNO_SYMBOLS = {
+    "AARTIIND", "ABB", "ABBOTINDIA", "ABFRL", "ACC", "ADANIENT", "ADANIPORTS", 
+    "ALKEM", "AMBUJACEM", "APOLLOHOSP", "APOLLOTYRE", "ASHOKLEY", "ASIANPAINT", 
+    "ASTRAL", "ATUL", "AUBANK", "AUROPHARMA", "AXISBANK", "BAJAJ-AUTO", "BAJAJFINSV", 
+    "BAJFINANCE", "BALKRISIND", "BALRAMCHIN", "BANDHANBNK", "BANKBARODA", "BATAINDIA", 
+    "BEL", "BHARATFORG", "BHARTIARTL", "BHEL", "BIOCON", "BOSCHLTD", "BPCL", 
+    "BRITANNIA", "BSOFT", "CANBK", "CANFINHOME", "CHAMBLFERT", "CHOLAFIN", "CIPLA", 
+    "COALINDIA", "COFORGE", "COLPAL", "CONCOR", "COROMANDEL", "CROMPTON", "CUMMINSIND", 
+    "DABUR", "DALBHARAT", "DEEPAKNTR", "DELTATECH", "DIVISLAB", "DIXON", "DLF", 
+    "DRREDDY", "EICHERMOT", "ESCORTS", "EXIDEIND", "GAIL", "GLENMARK", "GMRINFRA", 
+    "GNFC", "GODREJCP", "GODREJPROP", "GRANULES", "GRASIM", "GUJGASLTD", "HAL", 
+    "HAVELLS", "HCLTECH", "HDFCAMC", "HDFCBANK", "HDFCLIFE", "HEROMOTOCO", "HINDALCO", 
+    "HINDCOPPER", "HINDPETRO", "HINDUNILVR", "ICICIBANK", "ICICIGI", "ICICIPRULI", 
+    "IDEA", "IDFC", "IDFCFIRSTB", "IEX", "INDHOTEL", "INDIACEM", "INDIAMART", 
+    "INDUSINDBK", "INDUSTOWER", "INFY", "IOC", "IPCALAB", "IRCTC", "ITC", 
+    "JINDALSTEL", "JSWSTEEL", "JUBLFOOD", "KOTAKBANK", "LALPATHLAB", "LT", "LTF", 
+    "LTIM", "LTTS", "LUPIN", "M&M", "M&MFIN", "MANAPPURAM", "MARUTI", "MCDOWELL-N", 
+    "MCX", "METROPOLIS", "MFSL", "MGL", "MOTHERSON", "MPHASIS", "MRF", "MUTHOOTFIN", 
+    "NATIONALUM", "NAVINFLUOR", "NESTLEIND", "NMDC", "NTPC", "OBEROIRLTY", "OFSS", 
+    "ONGC", "PAGEIND", "PERSISTENT", "PETRONET", "PFC", "PIDILITIND", "PIIND", 
+    "PNB", "POLYCAB", "POWERGRID", "PVRINOX", "RAMCOCEM", "RBLBANK", "RECLTD", 
+    "RELIANCE", "SAIL", "SBICARD", "SBILIFE", "SBIN", "SHREECEM", "SHRIRAMFIN", 
+    "SIEMENS", "SRF", "SUNPHARMA", "SUNTV", "SYNGENE", "TATACHEM", "TATACOMM", 
+    "TATACONSUM", "TATAMOTORS", "TATAPOWER", "TATASTEEL", "TCS", "TECHM", "TITAN", 
+    "TORNTPHARM", "TORNTPOWER", "TRENT", "TVSMOTOR", "UBL", "ULTRACEMCO", "UPL", 
+    "VEDL", "VOLTAS", "WIPRO", "ZEEL", "ZYDUSLIFE", "JIOFIN", "RVNL", "IRFC", "REC",
+    "BOSCHLTD", "KAYNES", "MAXHEALTH", "NHPC", "CGPOWER", "PATANJALI", "ZOMATO"
+}
 
-def fetch_all_nse_symbols(universe: str = "Top 300 Liquid Stocks") -> list[str]:
+
+def fetch_all_nse_symbols(universe: str = "Non-F&O Cash Equities (No Futures)") -> list[str]:
     """
     Returns symbol list according to user selected universe filter:
-    - Nifty Benchmark 100: Top 100 bluechip index constituents
+    - Non-F&O Cash Equities (No Futures): All active NSE cash equities excluding F&O / Future stocks
     - Top 300 Liquid Stocks: Top 300 market cap & liquid equities
-    - All NSE Equities: Live download of 2400+ active equities from NSE archives
+    - Nifty Benchmark 100: Top 100 bluechip index constituents
+    - All NSE Equities: Full download of 2400+ active equities from NSE archives
     """
     clean_universe = (universe or "").strip()
-    if clean_universe == "Nifty Benchmark 100":
-        return sorted(list(set(NIFTY_100_BENCHMARK_SYMBOLS)))
-    elif clean_universe == "Top 300 Liquid Stocks":
-        return sorted(list(set(TOP_300_LIQUID_SYMBOLS)))
-        
-    # Download full active list for 'All NSE Equities'
-    url = "https://archives.nseindia.com/content/equities/EQUITY_L.csv"
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-    tickers = []
     
-    try:
-        req = urllib.request.Request(url, headers=headers)
-        with urllib.request.urlopen(req, timeout=5) as response:
-            df_nse = pd.read_csv(response)
-            if 'SYMBOL' in df_nse.columns:
-                if 'SERIES' in df_nse.columns:
-                    df_nse = df_nse[df_nse['SERIES'] == 'EQ']
-                symbols = df_nse['SYMBOL'].dropna().astype(str).str.strip()
-                tickers = [f"{sym}.NS" for sym in symbols.unique() if sym]
-    except Exception:
-        pass
-
-    if not tickers:
-        tickers = TOP_300_LIQUID_SYMBOLS
+    if clean_universe == "Nifty Benchmark 100":
+        tickers = sorted(list(set(NIFTY_100_BENCHMARK_SYMBOLS)))
+    elif "Top 300" in clean_universe:
+        tickers = sorted(list(set(TOP_300_LIQUID_SYMBOLS)))
+    else:
+        # Download full active list for NSE Equities
+        url = "https://archives.nseindia.com/content/equities/EQUITY_L.csv"
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+        tickers = []
         
+        try:
+            req = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(req, timeout=5) as response:
+                df_nse = pd.read_csv(response)
+                if 'SYMBOL' in df_nse.columns:
+                    if 'SERIES' in df_nse.columns:
+                        df_nse = df_nse[df_nse['SERIES'] == 'EQ']
+                    symbols = df_nse['SYMBOL'].dropna().astype(str).str.strip()
+                    tickers = [f"{sym}.NS" for sym in symbols.unique() if sym]
+        except Exception:
+            pass
+
+        if not tickers:
+            tickers = TOP_300_LIQUID_SYMBOLS
+
+    # Filter out F&O / Future stocks if "No Futures" or "Non-F&O" is specified (or by default)
+    if "No Futures" in clean_universe or "Non-F&O" in clean_universe:
+        tickers = [t for t in tickers if t.replace('.NS', '').strip() not in NSE_FNO_SYMBOLS]
+
     return sorted(list(set(tickers)))
 
 
@@ -533,10 +569,6 @@ def analyze_stock(
     if not (c_today > c_prev):
         return None
 
-    # Condition 12: Volume > 10,000
-    if not (v_prev > 10000):
-        return None
-
     # Condition 13: SMA(20) > SMA(40)
     if not (sma20_today > sma40_today):
         return None
@@ -620,7 +652,8 @@ def analyze_stock(
         'SMA60': round(float(sma60_today), 2),
         'Parabolic SAR': round(float(psar_today), 2),
         'Ichimoku Cloud Top': round(float(cloudtop_today), 2),
-        '_full_df': df
+        '_full_df': df,
+        '_pct_change_num': pct_change
     }
 
 
@@ -672,11 +705,11 @@ def run_full_scan(
     callback=None, 
     preset_mode: str = "Super Bullish Breakout (Recommended)",
     target_date: datetime.date | None = None,
-    universe: str = "Top 300 Liquid Stocks"
+    universe: str = "Non-F&O Cash Equities (No Futures)"
 ) -> tuple[pd.DataFrame, dict]:
     """
     Runs multi-threaded parallel scan across NSE tickers.
-    Returns (DataFrame sorted by Volume descending, stock_charts_dict).
+    Returns (DataFrame sorted by % Change descending, stock_charts_dict).
     """
     tickers = fetch_all_nse_symbols(universe=universe)
     if max_stocks and max_stocks > 0 and universe == "All NSE Equities":
@@ -710,7 +743,11 @@ def run_full_scan(
     cols = ['Symbol', 'Close (₹)', 'Change (%)', 'Volume', 'Signal Status', 'Stop Loss (₹)', 'Target 1 (₹)', 'Target 2 (₹)', 'RSI (14)', 'SMA20', 'SMA40', 'SMA60', 'Parabolic SAR', 'Ichimoku Cloud Top', 'Data Source']
     if results:
         df_out = pd.DataFrame(results)
-        df_out.sort_values(by='Volume', ascending=False, inplace=True)
+        if '_pct_change_num' in df_out.columns:
+            df_out.sort_values(by='_pct_change_num', ascending=False, inplace=True)
+            df_out.drop(columns=['_pct_change_num'], inplace=True, errors='ignore')
+        else:
+            df_out.sort_values(by='Symbol', ascending=True, inplace=True)
         df_out.reset_index(drop=True, inplace=True)
         # Ensure all columns exist
         available_cols = [c for c in cols if c in df_out.columns]
@@ -990,7 +1027,7 @@ def launch_streamlit_dashboard():
             with ctrl_col2:
                 universe = st.selectbox(
                     "⚙️ Stock Group Universe",
-                    ["Top 300 Liquid Stocks", "Nifty Benchmark 100", "All NSE Equities"],
+                    ["Non-F&O Cash Equities (No Futures)", "Top 300 Liquid Stocks", "Nifty Benchmark 100", "All NSE Equities"],
                     key="main_universe"
                 )
                 
@@ -1025,7 +1062,7 @@ def launch_streamlit_dashboard():
             run_universe = st.session_state.get('selected_universe', universe)
             run_workers = st.session_state.get('selected_workers', workers)
 
-            limit = None if run_universe == "All NSE Equities" else (100 if run_universe == "Nifty Benchmark 100" else 300)
+            limit = None if "All NSE" in run_universe else (100 if "100" in run_universe else 300)
 
             start_time = time.time()
             progress_bar = st.progress(0.0)
@@ -1087,7 +1124,7 @@ def launch_streamlit_dashboard():
             c2.markdown(f"""
                 <div class="metric-card">
                     <div class="metric-value">{df_res.iloc[0]['Symbol'] if not df_res.empty else 'N/A'}</div>
-                    <div class="metric-label">Top Traded Stock</div>
+                    <div class="metric-label">Top Gainer Stock</div>
                 </div>
             """, unsafe_allow_html=True)
 
