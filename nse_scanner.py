@@ -467,18 +467,6 @@ def compute_ichimoku_cloud(df: pd.DataFrame, tenkan_period=9, kijun_period=26, s
     }
 
 
-def compute_rsi(df: pd.DataFrame, period: int = 14) -> pd.Series:
-    """
-    Computes Wilder's Relative Strength Index (RSI 14).
-    """
-    delta = df['Close'].diff()
-    gain = (delta.where(delta > 0, 0)).ewm(alpha=1/period, adjust=False).mean()
-    loss = (-delta.where(delta < 0, 0)).ewm(alpha=1/period, adjust=False).mean()
-    rs = gain / loss.replace(0, np.nan)
-    rsi = 100 - (100 / (1 + rs))
-    return rsi.fillna(50)
-
-
 # ==============================================================================
 # 3. ALGORITHMIC QUANT EVALUATION ENGINE
 # ==============================================================================
@@ -533,7 +521,6 @@ def analyze_stock(
     df['CloudBottom'] = ichi['CloudBottom']
 
     df['PSAR'] = compute_psar(df)
-    df['RSI'] = compute_rsi(df, period=14)
 
     # Current and Historical Values
     c_today = df['Close'].iloc[-1]
@@ -554,7 +541,6 @@ def analyze_stock(
     spana_today = df['SpanA'].iloc[-1]
     spanb_today = df['SpanB'].iloc[-1]
     cloudtop_today = df['CloudTop'].iloc[-1]
-    rsi_today = df['RSI'].iloc[-1]
 
     # Ignore stocks with insufficient indicator history / NaN
     if any(pd.isna(x) for x in [sma20_today, sma40_today, sma60_today, cloudtop_today, psar_today]):
@@ -646,7 +632,6 @@ def analyze_stock(
         'Stop Loss (₹)': stop_loss,
         'Target 1 (₹)': target1,
         'Target 2 (₹)': target2,
-        'RSI (14)': round(float(rsi_today), 1),
         'SMA20': round(float(sma20_today), 2),
         'SMA40': round(float(sma40_today), 2),
         'SMA60': round(float(sma60_today), 2),
@@ -740,7 +725,7 @@ def run_full_scan(
                 if df_hist is not None:
                     stock_dfs[res['Symbol']] = df_hist
 
-    cols = ['Symbol', 'Close (₹)', 'Change (%)', 'Volume', 'Signal Status', 'Stop Loss (₹)', 'Target 1 (₹)', 'Target 2 (₹)', 'RSI (14)', 'SMA20', 'SMA40', 'SMA60', 'Parabolic SAR', 'Ichimoku Cloud Top', 'Data Source']
+    cols = ['Symbol', 'Close (₹)', 'Change (%)', 'Volume', 'Signal Status', 'Stop Loss (₹)', 'Target 1 (₹)', 'Target 2 (₹)', 'SMA20', 'SMA40', 'SMA60', 'Parabolic SAR', 'Ichimoku Cloud Top', 'Data Source']
     if results:
         df_out = pd.DataFrame(results)
         if '_pct_change_num' in df_out.columns:
@@ -1003,7 +988,7 @@ def launch_streamlit_dashboard():
             <div class="info-box">
                 <b>💡 Live Stock Scanner & Data Engine Overview</b><br>
                 • <b>Hybrid Data Engine</b>: Fast priority querying from local <code>market_data.sqlite</code> (Official NSE Bhavcopy) with fallback to live yfinance feeds.<br>
-                • <b>TradingView Indicator Accuracy</b>: Complete Ichimoku Cloud (Span A & Span B) + Wilder's Parabolic SAR + RSI 14.<br>
+                • <b>TradingView Indicator Accuracy</b>: Complete Ichimoku Cloud (Span A & Span B) + Wilder's Parabolic SAR.<br>
                 • <b>Auto History Save</b>: All scan results are automatically recorded in SQLite history logs!
             </div>
         """, unsafe_allow_html=True)
@@ -1181,7 +1166,7 @@ def launch_streamlit_dashboard():
                     mime="text/csv"
                 )
 
-                # TradingView 3-Subplot Plotly Chart Viewer
+                # TradingView 2-Subplot Plotly Chart Viewer
                 st.markdown("---")
                 st.subheader("📈 Institutional TradingView Interactive Stock Chart & Indicators")
                 selected_symbol = st.selectbox("Select Stock Symbol to View Chart:", df_res['Symbol'].tolist())
@@ -1190,14 +1175,13 @@ def launch_streamlit_dashboard():
                     chart_df = stock_dfs[selected_symbol].tail(100)
                     
                     fig = make_subplots(
-                        rows=3, cols=1,
+                        rows=2, cols=1,
                         shared_xaxes=True,
-                        vertical_spacing=0.04,
-                        row_heights=[0.55, 0.22, 0.23],
+                        vertical_spacing=0.06,
+                        row_heights=[0.70, 0.30],
                         subplot_titles=(
                             f"{selected_symbol} - Daily Price, SMAs, PSAR & Ichimoku Kumo Cloud (as of {last_target_date})",
-                            "Volume & 20-SMA Volume Line",
-                            "RSI (14) Momentum Oscillator"
+                            "Volume & 20-SMA Volume Line"
                         )
                     )
 
@@ -1254,20 +1238,10 @@ def launch_streamlit_dashboard():
                         line=dict(color='#facc15', width=1.5)
                     ), row=2, col=1)
 
-                    # 3. RSI Subplot
-                    if 'RSI' in chart_df.columns:
-                        fig.add_trace(go.Scatter(
-                            x=chart_df.index, y=chart_df['RSI'],
-                            mode='lines', name='RSI (14)',
-                            line=dict(color='#38bdf8', width=2)
-                        ), row=3, col=1)
-                        fig.add_hline(y=70, line_dash="dash", line_color="#f87171", row=3, col=1)
-                        fig.add_hline(y=30, line_dash="dash", line_color="#4ade80", row=3, col=1)
-
                     fig.update_layout(
                         template="plotly_dark",
                         xaxis_rangeslider_visible=False,
-                        height=750,
+                        height=700,
                         margin=dict(l=20, r=20, t=40, b=20),
                         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
                     )
